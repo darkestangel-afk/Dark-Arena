@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dark-Arena</title>
-
 <style>
 :root {
   --bg:#090f1d;
@@ -14,14 +13,8 @@
   --muted:#9eb1c9;
   --text:#edf5ff;
 }
-
-* { box-sizing:border-box; }
-
-html,body {
-  margin:0;
-  min-height:100%;
-}
-
+* {box-sizing:border-box}
+html,body {margin:0;min-height:100%}
 body {
   background:radial-gradient(ellipse at top,#172947,#090f1d 65%);
   color:var(--text);
@@ -29,331 +22,140 @@ body {
   min-height:100vh;
   padding:24px;
 }
-
-body.playing {
-  overflow:hidden;
-  overscroll-behavior:none;
-}
-
-main {
-  max-width:1000px;
-  margin:auto;
-}
-
+body.playing {overflow:hidden;overscroll-behavior:none}
+main {max-width:1000px;margin:auto}
 .topline {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:20px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;margin-bottom:20px;
 }
-
-.eyebrow {
-  font-size:11px;
-  letter-spacing:.2em;
-  color:#8ca6c5;
-}
-
-.logo {
-  font-size:22px;
-  font-weight:850;
-  letter-spacing:.08em;
-}
-
+.eyebrow {font-size:11px;letter-spacing:.2em;color:#8ca6c5}
+.logo {font-size:22px;font-weight:850;letter-spacing:.08em}
 .screen {
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:#0d1728ef;
-  overflow:hidden;
+  border:1px solid var(--line);border-radius:18px;
+  background:#0d1728ef;overflow:hidden;
   box-shadow:0 20px 70px #0006;
 }
-
-.heading { padding:22px 24px 10px; }
-.heading h1 { margin:0;font-size:clamp(24px,4vw,36px); }
-.heading p { color:var(--muted);margin:7px 0 0; }
-
+.heading {padding:22px 24px 10px}
+.heading h1 {margin:0;font-size:clamp(24px,4vw,36px)}
+.heading p {color:var(--muted);margin:7px 0 0}
 .roster {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  padding:16px 24px 24px;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;padding:16px 24px 24px;
 }
-
 .character {
-  border:1px solid var(--line);
-  background:#111e32;
-  border-radius:13px;
-  padding:16px;
-  text-align:left;
-  color:var(--text);
-  cursor:pointer;
-  transition:.18s;
+  border:1px solid var(--line);background:#111e32;
+  border-radius:13px;padding:16px;text-align:left;
+  color:var(--text);cursor:pointer;transition:.18s;
 }
-
-.character:hover {
-  transform:translateY(-3px);
-  border-color:#7995b9;
-}
-
+.character:hover {transform:translateY(-3px);border-color:#7995b9}
 .character.selected {
   outline:2px solid var(--accent);
   background:color-mix(in srgb,var(--accent) 12%,#111e32);
 }
-
 .avatar {
-  height:112px;
-  display:grid;
-  place-items:center;
+  height:112px;display:grid;place-items:center;
   background:linear-gradient(145deg,#1c2c45,#101a2b);
-  border-radius:10px;
-  margin-bottom:12px;
+  border-radius:10px;margin-bottom:12px;
 }
-
 .figure {
-  width:var(--w);
-  height:var(--h);
-  background:var(--accent);
+  width:var(--w);height:var(--h);background:var(--accent);
   border-radius:8px 8px 4px 4px;
   box-shadow:0 0 25px color-mix(in srgb,var(--accent) 45%,transparent);
   position:relative;
 }
-
 .figure:after {
-  content:"";
-  position:absolute;
-  right:20%;
-  top:22%;
-  width:7px;
-  height:7px;
-  background:white;
-  border-radius:50%;
+  content:"";position:absolute;right:20%;top:22%;
+  width:7px;height:7px;background:white;border-radius:50%;
 }
-
-.character h2 { margin:0 0 4px;font-size:19px; }
+.character h2 {margin:0 0 4px;font-size:19px}
 .character .tag {
-  font-size:11px;
-  color:var(--accent);
-  font-weight:800;
-  letter-spacing:.12em;
+  font-size:11px;color:var(--accent);
+  font-weight:800;letter-spacing:.12em;
 }
-
 .character p {
-  font-size:12px;
-  color:var(--muted);
-  margin:9px 0 0;
-  line-height:1.5;
+  font-size:12px;color:var(--muted);
+  margin:9px 0 0;line-height:1.5;
 }
-
 .stats {
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-  font-size:11px;
-  color:#d9e6f7;
-  flex-wrap:wrap;
+  display:flex;gap:10px;margin-top:12px;
+  font-size:11px;color:#d9e6f7;flex-wrap:wrap;
 }
-
-.stats span {
-  background:#1b2a40;
-  border-radius:6px;
-  padding:5px 7px;
-}
-
+.stats span {background:#1b2a40;border-radius:6px;padding:5px 7px}
 .selection {
   border-top:1px solid var(--line);
-  padding:20px 24px 24px;
-  background:#0a1424;
+  padding:20px 24px 24px;background:#0a1424;
 }
-
 .selection h3 {
-  margin:0 0 14px;
-  font-size:13px;
-  letter-spacing:.15em;
-  color:#9eb1c9;
+  margin:0 0 14px;font-size:13px;
+  letter-spacing:.15em;color:#9eb1c9;
 }
-
-.players {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
+.players {display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .player {
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:#111e32;
-  min-width:0;
+  padding:14px;border:1px solid var(--line);
+  border-radius:12px;background:#111e32;min-width:0;
 }
-
-.player .label {
-  font-size:11px;
-  letter-spacing:.14em;
-  color:var(--muted);
-}
-
-.player .picked {
-  font-size:22px;
-  font-weight:800;
-  margin:7px 0 3px;
-}
-
-.player .details {
-  font-size:12px;
-  color:var(--muted);
-}
-
-.player.p1 { border-left:3px solid #4aa8ff; }
-.player.p2 { border-left:3px solid #ff70c5; }
-
-.actions {
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-  margin-top:18px;
-}
-
+.player .label {font-size:11px;letter-spacing:.14em;color:var(--muted)}
+.player .picked {font-size:22px;font-weight:800;margin:7px 0 3px}
+.player .details {font-size:12px;color:var(--muted)}
+.player.p1 {border-left:3px solid #4aa8ff}
+.player.p2 {border-left:3px solid #ff70c5}
+.actions {display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
 .btn {
-  border:1px solid var(--line);
-  border-radius:9px;
-  background:#172740;
-  color:var(--text);
-  padding:11px 16px;
-  font-weight:700;
-  cursor:pointer;
+  border:1px solid var(--line);border-radius:9px;
+  background:#172740;color:var(--text);
+  padding:11px 16px;font-weight:700;cursor:pointer;
 }
-
-.btn:hover { filter:brightness(1.2); }
-
-.btn.primary {
-  background:#eaf3ff;
-  color:#0b1422;
-  border-color:#eaf3ff;
-}
-
-.hint {
-  font-size:12px;
-  color:var(--muted);
-  margin-top:14px;
-  line-height:1.6;
-}
-
-#battle {
-  display:none;
-  padding:18px;
-}
-
+.btn:hover {filter:brightness(1.2)}
+.btn.primary {background:#eaf3ff;color:#0b1422;border-color:#eaf3ff}
+.hint {font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+#battle {display:none;padding:18px}
 #battle canvas {
-  width:100%;
-  height:auto;
-  display:block;
-  border-radius:12px;
-  background:#101a2d;
-  border:1px solid var(--line);
-  touch-action:none;
+  width:100%;height:auto;display:block;
+  border-radius:12px;background:#101a2d;
+  border:1px solid var(--line);touch-action:none;
 }
-
-.hud {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.hudbox {
-  background:#111e32;
-  border:1px solid var(--line);
-  border-radius:10px;
-  padding:10px 13px;
-}
-
-.hudbox strong { font-size:20px; }
-.hudbox small { display:block;color:var(--muted); }
-
+.hud {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.hudbox {background:#111e32;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
+.hudbox strong {font-size:20px}
+.hudbox small {display:block;color:var(--muted)}
 .controls {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:12px;
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.8;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;margin-top:12px;font-size:12px;
+  color:var(--muted);line-height:1.8;
 }
-
-.controls div {
-  background:#111e32;
-  padding:10px;
-  border-radius:9px;
-}
-
-.controls b { color:var(--text); }
-
-kbd {
-  background:#263955;
-  color:white;
-  padding:2px 5px;
-  border-radius:4px;
-}
-
-#fullscreenBtn { margin-left:auto; }
-
-#fullscreenBtn.active {
-  border-color:#70baff;
-  color:#70baff;
-}
-
-:fullscreen {
-  background:#090f1d;
-}
-
-:fullscreen body {
-  padding:0;
-  overflow:hidden;
-}
-
+.controls div {background:#111e32;padding:10px;border-radius:9px}
+.controls b {color:var(--text)}
+kbd {background:#263955;color:white;padding:2px 5px;border-radius:4px}
+#fullscreenBtn {margin-left:auto}
+#fullscreenBtn.active {border-color:#70baff;color:#70baff}
+:fullscreen {background:#090f1d}
+:fullscreen body {padding:0;overflow:hidden}
 :fullscreen main {
-  width:100%;
-  max-width:none;
-  min-height:100vh;
-  padding:12px;
-  display:flex;
-  flex-direction:column;
+  width:100%;max-width:none;min-height:100vh;
+  padding:12px;display:flex;flex-direction:column;
 }
-
-:fullscreen .topline { margin-bottom:10px; }
-
+:fullscreen .topline {margin-bottom:10px}
 :fullscreen #battle {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  min-height:0;
+  flex:1;display:flex;flex-direction:column;
+  justify-content:center;min-height:0;
 }
-
-:fullscreen #battle canvas {
-  width:100%;
-  max-height:72vh;
-  object-fit:contain;
-}
-
+:fullscreen #battle canvas {width:100%;max-height:72vh;object-fit:contain}
 @media(max-width:650px) {
-  body { padding:10px; }
-  .roster { padding:12px;gap:7px; }
-  .character { padding:9px; }
-  .avatar { height:80px; }
-  .stats { flex-direction:column;gap:4px; }
-  .players { grid-template-columns:1fr; }
-  .heading { padding:17px; }
-  .selection { padding:16px; }
-  .controls { grid-template-columns:1fr; }
+  body {padding:10px}
+  .roster {padding:12px;gap:7px}
+  .character {padding:9px}
+  .avatar {height:80px}
+  .stats {flex-direction:column;gap:4px}
+  .players {grid-template-columns:1fr}
+  .heading {padding:17px}
+  .selection {padding:16px}
+  .controls {grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 <main>
-
 <div class="topline">
   <div>
     <div class="eyebrow">LOCAL MULTIPLAYER · DARK-ARENA</div>
@@ -367,263 +169,161 @@ kbd {
     <h1>Choose your fighter.</h1>
     <p>Select a character for each player. Click a character card to assign it to the active player.</p>
   </div>
-
   <div class="roster" id="roster"></div>
-
   <div class="selection">
     <h3>PLAYER SELECTIONS</h3>
-
     <div class="players">
       <div class="player p1">
         <div class="label">PLAYER 1 · BLUE</div>
         <div class="picked" id="p1name">Brawler</div>
         <div class="details" id="p1details"></div>
       </div>
-
       <div class="player p2">
         <div class="label">PLAYER 2 · PINK</div>
         <div class="picked" id="p2name">Fluff</div>
         <div class="details" id="p2details"></div>
       </div>
     </div>
-
     <div class="actions">
       <button class="btn" id="active1">Assign to Player 1</button>
       <button class="btn" id="active2">Assign to Player 2</button>
       <button class="btn primary" id="fight">Start Fight →</button>
     </div>
-
-    <div class="hint">
-      One game unit = 32 pixels. Fall speeds: Brawler 50, Heavy 60, Fluff 30.
-    </div>
+    <div class="hint">One game unit = 32 pixels. Fall speeds: Brawler 50, Heavy 60, Fluff 30.</div>
   </div>
 </section>
 
 <section class="screen" id="battle">
-
   <div class="heading" style="padding:4px 4px 14px">
     <h1>Fight!</h1>
     <p id="matchup"></p>
   </div>
-
   <div class="hud">
-    <div class="hudbox">
-      <small id="hud1">PLAYER 1</small>
-      <strong id="dmg1">0%</strong>
-    </div>
-
-    <div class="hudbox">
-      <small id="hud2">PLAYER 2</small>
-      <strong id="dmg2">0%</strong>
-    </div>
+    <div class="hudbox"><small id="hud1">PLAYER 1</small><strong id="dmg1">0%</strong></div>
+    <div class="hudbox"><small id="hud2">PLAYER 2</small><strong id="dmg2">0%</strong></div>
   </div>
-
   <canvas id="arena" width="960" height="540"></canvas>
-
   <div class="actions">
     <button class="btn primary" id="restart">Restart match</button>
     <button class="btn" id="back">Character select</button>
     <button class="btn" id="fullscreenBtn">⛶ Fullscreen</button>
     <span id="status" class="hint" style="margin:8px 0 0">READY</span>
   </div>
-
   <div class="controls">
     <div>
       <b>PLAYER 1</b><br>
       <kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump<br>
       <kbd>R</kbd> Basic · <kbd>E</kbd> Special<br>
-      <kbd>X</kbd> Shield · <kbd>C</kbd> Grab
+      <kbd>X</kbd> Shield · <kbd>C</kbd> Grab<br>
+      During a grab: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to aim throw.
     </div>
-
     <div>
       <b>PLAYER 2</b><br>
       <kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump<br>
       <kbd>P</kbd> Basic · <kbd>O</kbd> Special<br>
-      <kbd>K</kbd> Shield · <kbd>L</kbd> Grab
+      <kbd>K</kbd> Shield · <kbd>L</kbd> Grab<br>
+      During a grab: arrow keys to aim throw.
     </div>
   </div>
-
-  <div class="hint">
-    Press <kbd>Esc</kbd> to leave fullscreen. Arrow keys will not scroll the page during a match.
-  </div>
+  <div class="hint">Press <kbd>Esc</kbd> to leave fullscreen. Arrow keys will not scroll the page during a match.</div>
 </section>
-
 </main>
 
 <script>
-/* =========================================================
-   CHARACTER DATA
-========================================================= */
+/* CHARACTER DATA */
 
 const chars = {
   Brawler: {
-    name:'Brawler',
-    color:'#4aa8ff',
-    weight:5,
-    speed:50,
-    fallSpeed:50,
-    w:1,
-    h:2,
-    basic:'Forward strike · 3 × 0.5 · 7% damage',
-    special:'360° area · 25% damage',
-    desc:'Balanced all-rounder',
-    basicBox:[3,.5,'front',0,2/3],
-    specialRadius:1.5
+    name:'Brawler',color:'#4aa8ff',weight:5,speed:50,fallSpeed:50,
+    w:1,h:2,basic:'Forward strike · 3 × 0.5 · 7% damage',
+    special:'360° area · 25% damage',desc:'Balanced all-rounder',
+    basicBox:[3,.5,'front',0,2/3],specialRadius:1.5
   },
-
   Fluff: {
-    name:'Fluff',
-    color:'#ff70c5',
-    weight:2,
-    speed:60,
-    fallSpeed:30,
-    w:.75,
-    h:1.75,
-    basic:'Low sweep · 5 × 0.1 · 8% damage',
+    name:'Fluff',color:'#ff70c5',weight:2,speed:60,fallSpeed:30,
+    w:.75,h:1.75,basic:'Low sweep · 5 × 0.1 · 8% damage',
     special:'Circle · radius 1 · 20% damage',
     desc:'Fast and lightweight',
     basicBox:[5,.1,'front',0,.05],
-    specialRadius:1,
-    specialOffset:[.325,1.75]
+    specialRadius:1,specialOffset:[.325,1.75]
   },
-
   Heavy: {
-    name:'Heavy',
-    color:'#ff626b',
-    weight:7,
-    speed:40,
-    fallSpeed:60,
-    w:1.1,
-    h:2.2,
-    basic:'Two-sided strike · 4 × 0.75 · 10% damage · 1.5s cooldown',
+    name:'Heavy',color:'#ff626b',weight:7,speed:40,fallSpeed:60,
+    w:1.1,h:2.2,basic:'Two-sided strike · 4 × 0.75 · 10% damage · 1.5s cooldown',
     special:'+40% speed and damage for 3 seconds · 10s cooldown',
-    desc:'Slow, powerful bruiser',
-    basicBox:[4,.75,'center',.55,1.7]
+    desc:'Slow, powerful bruiser',basicBox:[4,.75,'center',.55,1.7]
   }
 };
 
 let chosen=['Brawler','Fluff'];
 let active=0;
-
 const roster=document.querySelector('#roster');
 
 function renderSelect() {
   roster.innerHTML='';
-
   Object.entries(chars).forEach(([name,c]) => {
     const card=document.createElement('button');
-
     card.className='character'+(chosen.includes(name)?' selected':'');
     card.style.setProperty('--accent',c.color);
-
     card.innerHTML=`
-      <div class="avatar">
-        <div class="figure"
-          style="--accent:${c.color};
-          --w:${Math.max(20,c.w*32)}px;
-          --h:${c.h*42}px">
-        </div>
-      </div>
+      <div class="avatar"><div class="figure" style="--accent:${c.color};--w:${Math.max(20,c.w*32)}px;--h:${c.h*42}px"></div></div>
       <div class="tag">${c.desc.toUpperCase()}</div>
       <h2>${name}</h2>
       <p>${c.basic}<br>${c.special}</p>
       <div class="stats">
-        <span>WEIGHT ${c.weight}</span>
-        <span>SPEED ${c.speed}</span>
-        <span>FALL ${c.fallSpeed}</span>
-        <span>${c.w} : ${c.h}</span>
-      </div>
-    `;
-
+        <span>WEIGHT ${c.weight}</span><span>SPEED ${c.speed}</span>
+        <span>FALL ${c.fallSpeed}</span><span>${c.w} : ${c.h}</span>
+      </div>`;
     card.addEventListener('click',() => {
       chosen[active]=name;
       renderSelect();
     });
-
     roster.append(card);
   });
 
   for(let i=0;i<2;i++) {
     const c=chars[chosen[i]];
-
     document.querySelector(`#p${i+1}name`).textContent=chosen[i];
-
     document.querySelector(`#p${i+1}details`).textContent=
       `Weight ${c.weight} · Speed ${c.speed} · Fall ${c.fallSpeed} · Size ${c.w}:${c.h}`;
   }
-
-  document.querySelector('#active1').style.outline=
-    active===0?'2px solid #4aa8ff':'none';
-
-  document.querySelector('#active2').style.outline=
-    active===1?'2px solid #ff70c5':'none';
+  document.querySelector('#active1').style.outline=active===0?'2px solid #4aa8ff':'none';
+  document.querySelector('#active2').style.outline=active===1?'2px solid #ff70c5':'none';
 }
 
-document.querySelector('#active1').onclick=() => {
-  active=0;
-  renderSelect();
-};
-
-document.querySelector('#active2').onclick=() => {
-  active=1;
-  renderSelect();
-};
-
-document.querySelector('#fight').onclick=() => {
+document.querySelector('#active1').onclick=()=>{active=0;renderSelect()};
+document.querySelector('#active2').onclick=()=>{active=1;renderSelect()};
+document.querySelector('#fight').onclick=()=>{
   document.querySelector('#select').style.display='none';
   document.querySelector('#battle').style.display='block';
   document.body.classList.add('playing');
   initMatch();
 };
-
-document.querySelector('#back').onclick=() => {
+document.querySelector('#back').onclick=()=>{
   stop();
+  activeGrab=null;
   document.querySelector('#battle').style.display='none';
   document.querySelector('#select').style.display='block';
   document.body.classList.remove('playing');
 };
-
 renderSelect();
 
-
-/* =========================================================
-   GAME SETUP
-========================================================= */
+/* GAME SETUP */
 
 const canvas=document.querySelector('#arena');
 const ctx=canvas.getContext('2d');
-
-const W=960;
-const H=540;
-const U=32;
-const floorY=440;
+const W=960,H=540,U=32,floorY=440;
 
 let players=[];
 let keys={};
 let raf=0;
 let activeGame=false;
 let particles=[];
-let last=0;
+let activeGrab=null;
 
 const controls=[
-  {
-    left:'a',
-    right:'d',
-    jump:'w',
-    basic:'r',
-    special:'e',
-    shield:'x',
-    grab:'c'
-  },
-  {
-    left:'arrowleft',
-    right:'arrowright',
-    jump:'arrowup',
-    basic:'p',
-    special:'o',
-    shield:'k',
-    grab:'l'
-  }
+  {left:'a',right:'d',jump:'w',down:'s',basic:'r',special:'e',shield:'x',grab:'c'},
+  {left:'arrowleft',right:'arrowright',jump:'arrowup',down:'arrowdown',basic:'p',special:'o',shield:'k',grab:'l'}
 ];
 
 const platforms=[
@@ -634,63 +334,28 @@ const platforms=[
 
 function makePlayer(name,x,face,i) {
   const c=chars[name];
-
   return {
-    name,
-    c,
-    x,
-    y:floorY-c.h*U,
-    vx:0,
-    vy:0,
-    w:c.w*U,
-    h:c.h*U,
-    face,
-    damage:0,
-    ground:true,
-    attack:0,
-    attackType:null,
-    hitTargets:{},
-    basicCool:0,
-    specialCool:0,
-    grabCool:0,
-    invul:0,
-    stun:0,
-    shield:false,
-    buff:0,
-    movementLock:0,
-    fallSlow:0,
-    jumpsRemaining:2,
-    jumpHeld:false,
-    controls:controls[i],
-    ko:0,
-    shiny:0
+    name,c,x,y:floorY-c.h*U,vx:0,vy:0,
+    w:c.w*U,h:c.h*U,face,damage:0,ground:true,
+    attack:0,attackType:null,hitTargets:{},
+    basicCool:0,specialCool:0,grabCool:0,
+    invul:0,stun:0,shield:false,buff:0,
+    movementLock:0,fallSlow:0,jumpsRemaining:2,
+    jumpHeld:false,controls:controls[i],ko:0,shiny:0
   };
 }
 
 function initMatch() {
   stop();
-
-  players=[
-    makePlayer(chosen[0],250,1,0),
-    makePlayer(chosen[1],670,-1,1)
-  ];
-
+  activeGrab=null;
+  players=[makePlayer(chosen[0],250,1,0),makePlayer(chosen[1],670,-1,1)];
   particles=[];
   keys={};
-  last=0;
   activeGame=true;
-
-  document.querySelector('#matchup').textContent=
-    chosen[0]+' vs '+chosen[1];
-
-  document.querySelector('#hud1').textContent=
-    'PLAYER 1 · '+chosen[0];
-
-  document.querySelector('#hud2').textContent=
-    'PLAYER 2 · '+chosen[1];
-
+  document.querySelector('#matchup').textContent=chosen[0]+' vs '+chosen[1];
+  document.querySelector('#hud1').textContent='PLAYER 1 · '+chosen[0];
+  document.querySelector('#hud2').textContent='PLAYER 2 · '+chosen[1];
   document.querySelector('#status').textContent='FIGHT!';
-
   draw();
   raf=requestAnimationFrame(loop);
 }
@@ -700,37 +365,21 @@ function stop() {
   cancelAnimationFrame(raf);
 }
 
-function rect(x,y,w,h) {
-  return {x,y,w,h};
-}
-
+function rect(x,y,w,h) {return {x,y,w,h}}
 function overlaps(a,b) {
-  return (
-    a.x<b.x+b.w &&
-    a.x+a.w>b.x &&
-    a.y<b.y+b.h &&
-    a.y+a.h>b.y
-  );
+  return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;
 }
 
-
-/* =========================================================
-   PARTICLE EFFECTS
-========================================================= */
+/* PARTICLES */
 
 function createParticles(x,y,color,count=12,power=8) {
   for(let i=0;i<count;i++) {
     const angle=Math.random()*Math.PI*2;
     const speed=Math.random()*power;
-
     particles.push({
-      x,y,
-      vx:Math.cos(angle)*speed,
-      vy:Math.sin(angle)*speed,
-      life:24+Math.random()*12,
-      maxLife:36,
-      size:3+Math.random()*4,
-      color
+      x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+      life:24+Math.random()*12,maxLife:36,
+      size:3+Math.random()*4,color
     });
   }
 }
@@ -741,43 +390,33 @@ function shinyEffect(p) {
   p.shiny=55;
 }
 
-
-/* =========================================================
-   ATTACK ACTIVATION
-========================================================= */
+/* ATTACK ACTIVATION */
 
 function hit(p,type) {
-
   if(p.stun>0 || p.movementLock>0) {
     if(type!=='special') return;
   }
 
   if(type==='basic') {
     if(p.basicCool>0) return;
-
     p.attack=14;
     p.attackType='basic';
     p.hitTargets={};
-
-    // Heavy: 1.5 seconds. Others retain 0.5 seconds.
     p.basicCool=p.c.name==='Heavy'?90:30;
     return;
   }
 
   if(type==='grab') {
-    if(p.grabCool>0) return;
-
+    if(p.grabCool>0 || activeGrab) return;
     p.attack=14;
     p.attackType='grab';
     p.hitTargets={};
-    p.grabCool=30;
+    p.grabCool=45;
     return;
   }
 
   if(type==='special') {
     if(p.specialCool>0) return;
-
-    // Heavy: 10 seconds. Other characters: existing cooldown.
     p.specialCool=p.c.name==='Heavy'?600:65;
 
     if(p.c.name==='Heavy') {
@@ -786,7 +425,6 @@ function hit(p,type) {
       p.attack=0;
       p.attackType=null;
       shinyEffect(p);
-
       document.querySelector('#status').textContent='HEAVY POWER-UP!';
       return;
     }
@@ -799,76 +437,57 @@ function hit(p,type) {
       p.movementLock=60;
       p.vx=0;
     }
-
-    if(p.c.name==='Fluff') {
-      p.fallSlow=120;
-    }
+    if(p.c.name==='Fluff') p.fallSlow=120;
   }
 }
 
-
-/* =========================================================
-   HITBOX GEOMETRY
-========================================================= */
+/* HITBOXES */
 
 function basicRect(p) {
   const [w,h,where,cx,cy]=p.c.basicBox;
-
-  const bw=w*U;
-  const bh=Math.max(3,h*U);
-
-  let centerX;
-  let centerY;
+  const bw=w*U,bh=Math.max(3,h*U);
+  let centerX,centerY;
 
   if(p.c.name==='Heavy') {
-    // Heavy's rectangle is centred at local coordinate (0.55, 1.7).
     centerX=p.x+cx*U;
     centerY=p.y+p.h-cy*U;
   } else {
     centerX=p.x+p.w/2+p.face*(bw/2+p.w/2);
     centerY=p.y+p.h-cy*U;
   }
-
   return rect(centerX-bw/2,centerY-bh/2,bw,bh);
 }
 
-function attackShape(p) {
+function grabRect(p) {
+  // Range = half the character's base length.
+  // Thickness = one quarter of the character's base height.
+  // The grab is centred at two-thirds of character height.
+  const range=.5*p.w;
+  const thickness=.25*p.h;
+  const centerY=p.y+p.h-(2/3)*p.h;
+  const x=p.face>0?p.x+p.w:p.x-range;
 
-  if(p.attackType==='basic' || p.attackType==='grab') {
-    return basicRect(p);
-  }
+  return rect(x,centerY-thickness/2,range,thickness);
+}
+
+function attackShape(p) {
+  if(p.attackType==='basic') return basicRect(p);
+  if(p.attackType==='grab') return grabRect(p);
 
   if(p.attackType==='special') {
-
     if(p.c.name==='Brawler') {
-      return {
-        circle:true,
-        x:p.x+p.w/2,
-        y:p.y+p.h/2,
-        r:1.5*U
-      };
+      return {circle:true,x:p.x+p.w/2,y:p.y+p.h/2,r:1.5*U};
     }
-
     if(p.c.name==='Fluff') {
-      return {
-        circle:true,
-        x:p.x+.325*U,
-        y:p.y+p.h-1.75*U,
-        r:1*U
-      };
+      return {circle:true,x:p.x+.325*U,y:p.y+p.h-1.75*U,r:1*U};
     }
   }
-
   return null;
 }
 
-
-/* =========================================================
-   DAMAGE AND KNOCKBACK
-========================================================= */
+/* DAMAGE AND KNOCKBACK */
 
 function damageHit(att,def,type) {
-
   if(def.invul>0 || def.shield) return;
 
   const attacker=att.c.name;
@@ -879,170 +498,185 @@ function damageHit(att,def,type) {
     if(attacker==='Fluff') damage=8;
     if(attacker==='Heavy') damage=10;
   }
-
   if(type==='grab') damage=9;
-
   if(type==='special') {
     if(attacker==='Brawler') damage=25;
     if(attacker==='Fluff') damage=20;
   }
-
   if(damage<=0) return;
 
-  // Heavy's active buff increases damage by 40%.
   if(att.buff>0) damage*=1.4;
-
   def.damage+=damage;
 
-  /*
-    Knockback scaling:
-    0% damage   = 1.0x
-    50% damage  = 1.5x
-    100% damage = 2.0x
-    200% damage = 3.0x
-  */
   const knockbackScale=1+def.damage/100;
-
-  // Horizontal direction away from the attacker.
-  const away=Math.sign(
-    (def.x+def.w/2)-(att.x+att.w/2)
-  ) || att.face;
+  const away=Math.sign((def.x+def.w/2)-(att.x+att.w/2))||att.face;
 
   if(attacker==='Fluff' && type==='basic') {
-
-    // Base knockback = 30, converted to 3 px/frame.
     const force=3*knockbackScale;
-
     if(!def.ground) {
-      // Airborne opponent: launch downward.
       def.vx=0;
       def.vy=force;
     } else {
-      // Grounded opponent: requested vector [-0.979796, 0.2].
-      // Mirror X to push the opponent away from Fluff.
       def.vx=away*.979796*force;
       def.vy=-.2*force;
     }
   }
-
   else if(attacker==='Fluff' && type==='special') {
-
-    // Previous knockback was 70 (7 px/frame).
-    // New knockback is 700 (70 px/frame): exactly 10x.
-    const force=70*knockbackScale;
-
+    // Fluff special knockback stat is now 100, not 700.
+    const force=10*knockbackScale;
     def.vx=away*1.5*knockbackScale;
     def.vy=-force;
   }
-
   else if(attacker==='Brawler' && type==='basic') {
-
-    // Base knockback = 50.
     const force=5*knockbackScale;
-
     def.vx=att.face*force;
     def.vy=-2.5*knockbackScale;
   }
-
   else if(attacker==='Brawler' && type==='special') {
-
     const force=(5+def.damage*.105)*(5/def.c.weight);
-
     def.vx=att.face*force*1.2*knockbackScale;
-
-    def.vy=
-      -Math.min(18,5+def.damage*.055)*
-      (5/def.c.weight)*
-      1.2*
-      knockbackScale;
+    def.vy=-Math.min(18,5+def.damage*.055)*(5/def.c.weight)*1.2*knockbackScale;
+  }
+  else {
+    const mult=type==='special'?1.2:type==='grab'?1.1:1;
+    const force=(5+def.damage*.105)*(5/def.c.weight)*mult*knockbackScale;
+    def.vx=att.face*force;
+    def.vy=-Math.min(18,5+def.damage*.055)*(5/def.c.weight)*mult*knockbackScale;
   }
 
-  else {
-
-    // General knockback for Heavy and grabs.
-    const mult=type==='special'?1.2:type==='grab'?1.1:1;
-
-    const force=
-      (5+def.damage*.105)*
-      (5/def.c.weight)*
-      mult*
-      knockbackScale;
-
-    def.vx=att.face*force;
-
-    def.vy=
-      -Math.min(18,5+def.damage*.055)*
-      (5/def.c.weight)*
-      mult*
-      knockbackScale;
+  // Fluff receives 45% less knockback from all attacks.
+  if(def.c.name==='Fluff') {
+    def.vx*=.55;
+    def.vy*=.55;
   }
 
   def.stun=12;
   def.invul=16;
-
-  createParticles(
-    def.x+def.w/2,
-    def.y+def.h/2,
-    def.c.color,
-    12,
-    8
-  );
+  createParticles(def.x+def.w/2,def.y+def.h/2,def.c.color,12,8);
 }
 
+/* GRAB SYSTEM */
 
-/* =========================================================
-   ATTACK COLLISION
-========================================================= */
+function startGrab(attacker,victim) {
+  if(activeGrab || victim.invul>0 || victim.shield) return;
+
+  activeGrab={
+    attacker,
+    victim,
+    timer:60,
+    dx:attacker.face,
+    dy:0
+  };
+
+  attacker.attack=0;
+  attacker.attackType=null;
+  attacker.vx=0;
+  attacker.vy=0;
+
+  victim.vx=0;
+  victim.vy=0;
+  victim.stun=0;
+  victim.invul=0;
+
+  document.querySelector('#status').textContent=
+    (attacker===players[0]?'PLAYER 1':'PLAYER 2')+
+    ' GRAB! CHOOSE A THROW DIRECTION!';
+}
+
+function updateGrab() {
+  if(!activeGrab) return;
+
+  const g=activeGrab;
+  const a=g.attacker;
+  const v=g.victim;
+  const k=a.controls;
+
+  // Direction selection is available for one second.
+  let dx=0,dy=0;
+  if(keys[k.left]) dx--;
+  if(keys[k.right]) dx++;
+  if(keys[k.jump]) dy--;
+  if(keys[k.down]) dy++;
+
+  if(dx!==0 || dy!==0) {
+    const length=Math.hypot(dx,dy);
+    g.dx=dx/length;
+    g.dy=dy/length;
+  }
+
+  a.vx=0;a.vy=0;
+  v.vx=0;v.vy=0;
+
+  g.timer--;
+
+  if(g.timer<=0) {
+    // Throw force: 60 knockback, converted to 6 px/frame.
+    const force=6;
+    let vx=g.dx*force;
+    let vy=g.dy*force;
+
+    // If no direction was selected, throw in the attacker's facing direction.
+    if(Math.abs(g.dx)+Math.abs(g.dy)===0) vx=a.face*force;
+
+    if(v.c.name==='Fluff') {
+      vx*=.55;
+      vy*=.55;
+    }
+
+    v.vx=vx;
+    v.vy=vy;
+    v.ground=false;
+    v.jumpsRemaining=0;
+    v.invul=16;
+    v.stun=12;
+
+    createParticles(v.x+v.w/2,v.y+v.h/2,'#fff2a6',24,9);
+    document.querySelector('#status').textContent='THROW!';
+    activeGrab=null;
+  }
+}
+
+/* ATTACK COLLISION */
 
 function checkAttack(p,op) {
-
-  if(p.attack<=0) return;
-  if(p.hitTargets[op.name]) return;
-
-  // Heavy special is a self-buff.
+  if(p.attack<=0 || p.hitTargets[op.name]) return;
   if(p.attackType==='special' && p.c.name==='Heavy') return;
 
   if(p.attackType==='special' && p.attack===21) {
-
     const s=attackShape(p);
-
     if(s && s.circle) {
       const dx=op.x+op.w/2-s.x;
       const dy=op.y+op.h/2-s.y;
-
       if(Math.hypot(dx,dy)<s.r+Math.min(op.w,op.h)/2) {
         p.hitTargets[op.name]=true;
         damageHit(p,op,'special');
       }
     }
-
     return;
   }
 
   if(p.attack===8) {
     const b=attackShape(p);
-
     if(b && overlaps(b,rect(op.x,op.y,op.w,op.h))) {
       p.hitTargets[op.name]=true;
-      damageHit(p,op,p.attackType);
+
+      if(p.attackType==='grab') startGrab(p,op);
+      else damageHit(p,op,p.attackType);
     }
   }
 }
 
-
-/* =========================================================
-   PLAYER UPDATE
-========================================================= */
+/* PLAYER UPDATE */
 
 function update(p,op) {
+  // Freeze both characters during a grab's aiming window.
+  if(activeGrab && (activeGrab.attacker===p || activeGrab.victim===p)) return;
 
-  const k=p.controls;
-  const c=p.c;
+  const k=p.controls,c=p.c;
 
   p.basicCool=Math.max(0,p.basicCool-1);
   p.specialCool=Math.max(0,p.specialCool-1);
   p.grabCool=Math.max(0,p.grabCool-1);
-
   p.attack=Math.max(0,p.attack-1);
   p.invul=Math.max(0,p.invul-1);
   p.stun=Math.max(0,p.stun-1);
@@ -1051,43 +685,22 @@ function update(p,op) {
   p.fallSlow=Math.max(0,p.fallSlow-1);
   p.shiny=Math.max(0,p.shiny-1);
 
-  p.shield=!!keys[k.shield] && p.ground && p.stun===0 &&
-    p.movementLock===0;
+  p.shield=!!keys[k.shield] && p.ground && p.stun===0 && p.movementLock===0;
 
   if(p.stun===0) {
-
     const buffMultiplier=p.buff>0?1.4:1;
     const shieldMultiplier=p.shield?.45:1;
     const movementLocked=p.movementLock>0;
-
-    const speed=
-      (c.speed/50)*4.4*buffMultiplier*shieldMultiplier;
+    const speed=(c.speed/50)*4.4*buffMultiplier*shieldMultiplier;
 
     if(!movementLocked) {
-
-      if(keys[k.left]) {
-        p.vx-=.75;
-        p.face=-1;
-      }
-
-      if(keys[k.right]) {
-        p.vx+=.75;
-        p.face=1;
-      }
-
+      if(keys[k.left]) {p.vx-=.75;p.face=-1}
+      if(keys[k.right]) {p.vx+=.75;p.face=1}
       p.vx=Math.max(-speed,Math.min(speed,p.vx));
+      if(!keys[k.left] && !keys[k.right]) p.vx*=.78;
+    } else p.vx=0;
 
-      if(!keys[k.left] && !keys[k.right]) {
-        p.vx*=.78;
-      }
-
-    } else {
-      p.vx=0;
-    }
-
-    // Double jump. A new key press is required for each jump.
     const jumpPressed=!!keys[k.jump];
-
     if(jumpPressed && !p.jumpHeld) {
       if(p.jumpsRemaining>0 && !p.shield && !movementLocked) {
         p.vy=-12;
@@ -1095,13 +708,11 @@ function update(p,op) {
         p.jumpsRemaining--;
       }
     }
-
     p.jumpHeld=jumpPressed;
 
     if(keys[k.basic] && !movementLocked) hit(p,'basic');
     if(keys[k.special]) hit(p,'special');
     if(keys[k.grab] && !movementLocked) hit(p,'grab');
-
   } else {
     p.jumpHeld=!!keys[k.jump];
   }
@@ -1109,15 +720,10 @@ function update(p,op) {
   p.x+=p.vx;
   p.y+=p.vy;
 
-  // Convert fall-speed stats into pixels per frame.
   let maxFallSpeed=c.fallSpeed/10;
-
-  // Fluff's special slows falling to 10 for two seconds.
   if(p.fallSlow>0) maxFallSpeed=1;
 
-  const gravity=.57;
-  p.vy=Math.min(maxFallSpeed,p.vy+gravity);
-
+  p.vy=Math.min(maxFallSpeed,p.vy+.57);
   p.ground=false;
 
   for(const s of platforms) {
@@ -1135,58 +741,47 @@ function update(p,op) {
     }
   }
 
-  p.x=Math.max(0,Math.min(W-p.w,p.x));
+  // Side boundaries are 3 units beyond the visible arena.
+  p.x=Math.max(-96,Math.min(W+96-p.w,p.x));
 
   checkAttack(p,op);
 
-  // KO and respawn.
-  if(p.y>H+80) {
-    p.ko++;
+  // Blast zones: 96 pixels beyond every screen edge.
+  const outsideLeft=p.x+p.w < -96;
+  const outsideRight=p.x > W+96;
+  const outsideTop=p.y+p.h < -96;
+  const outsideBottom=p.y > H+96;
 
+  if(outsideLeft || outsideRight || outsideTop || outsideBottom) {
+    p.ko++;
     document.querySelector('#status').textContent=
       (p===players[0]?'PLAYER 2':'PLAYER 1')+' SCORES A KO!';
 
     p.x=p===players[0]?250:670;
     p.y=150;
-    p.vx=0;
-    p.vy=0;
-    p.damage=0;
-    p.invul=100;
-    p.jumpsRemaining=2;
-    p.ground=false;
-    p.attack=0;
-    p.buff=0;
-    p.movementLock=0;
-    p.fallSlow=0;
+    p.vx=0;p.vy=0;p.damage=0;
+    p.invul=100;p.jumpsRemaining=2;
+    p.ground=false;p.attack=0;p.buff=0;
+    p.movementLock=0;p.fallSlow=0;
   }
 }
 
-
-/* =========================================================
-   DRAWING
-========================================================= */
+/* DRAWING */
 
 function draw() {
-
   ctx.clearRect(0,0,W,H);
 
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,'#101a31');
   g.addColorStop(1,'#182b43');
-
   ctx.fillStyle=g;
   ctx.fillRect(0,0,W,H);
 
   ctx.strokeStyle='rgba(111,173,220,.10)';
-
   for(let x=0;x<W;x+=40) {
-    ctx.beginPath();
-    ctx.moveTo(x,0);
-    ctx.lineTo(x,H);
-    ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
   }
 
-  // Platforms.
   for(const s of platforms) {
     ctx.fillStyle='#263b56';
     ctx.fillRect(s.x,s.y,s.w,s.h);
@@ -1194,96 +789,56 @@ function draw() {
     ctx.fillRect(s.x,s.y,s.w,4);
   }
 
-  // Players.
   for(const p of players) {
-
     ctx.save();
+    ctx.globalAlpha=p.invul>0 && Math.floor(p.invul/5)%2?.35:1;
 
-    ctx.globalAlpha=
-      p.invul>0 && Math.floor(p.invul/5)%2
-      ? .35
-      : 1;
-
-    // Heavy's shiny activation effect.
     if(p.shiny>0) {
       const pulse=.5+.5*Math.sin(p.shiny*.7);
-
       ctx.save();
       ctx.shadowColor='#fff2a6';
       ctx.shadowBlur=25+20*pulse;
       ctx.strokeStyle=`rgba(255,235,150,${.5+.5*pulse})`;
       ctx.lineWidth=5;
-
-      ctx.strokeRect(
-        p.x-9,p.y-9,p.w+18,p.h+18
-      );
-
+      ctx.strokeRect(p.x-9,p.y-9,p.w+18,p.h+18);
       ctx.restore();
     }
 
-    // Character body.
     ctx.fillStyle=p.c.color;
     ctx.fillRect(p.x,p.y,p.w,p.h);
 
-    // Eye.
     ctx.fillStyle='white';
-
     ctx.fillRect(
       p.x+(p.face>0?p.w*.68:p.w*.18),
-      p.y+p.h*.25,
-      6,6
+      p.y+p.h*.25,6,6
     );
 
-    // Shield.
     if(p.shield) {
       ctx.strokeStyle='#b4f1ff';
       ctx.lineWidth=5;
       ctx.beginPath();
-
-      ctx.ellipse(
-        p.x+p.w/2,
-        p.y+p.h/2,
-        p.w*.9,
-        p.h*.75,
-        0,0,Math.PI*2
-      );
-
+      ctx.ellipse(p.x+p.w/2,p.y+p.h/2,p.w*.9,p.h*.75,0,0,Math.PI*2);
       ctx.stroke();
     }
 
-    // Attack hitboxes.
     if(p.attack>0) {
       const s=attackShape(p);
-
       if(s) {
-        ctx.fillStyle=
-          p.attackType==='special'
-          ? 'rgba(255,220,100,.32)'
-          : 'rgba(255,255,255,.28)';
-
+        ctx.fillStyle=p.attackType==='special'?'rgba(255,220,100,.32)':'rgba(255,255,255,.28)';
         if(s.circle) {
-          ctx.beginPath();
-          ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-          ctx.fill();
-        } else {
-          ctx.fillRect(s.x,s.y,s.w,s.h);
-        }
+          ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+        } else ctx.fillRect(s.x,s.y,s.w,s.h);
       }
     }
 
-    // Heavy buff outline.
     if(p.buff>0) {
       ctx.strokeStyle='#ffd166';
       ctx.lineWidth=3;
       ctx.shadowColor='#ffd166';
       ctx.shadowBlur=12;
-
-      ctx.strokeRect(
-        p.x-5,p.y-5,p.w+10,p.h+10
-      );
+      ctx.strokeRect(p.x-5,p.y-5,p.w+10,p.h+10);
     }
 
-    // Brawler movement lock indicator.
     if(p.movementLock>0 && p.c.name==='Brawler') {
       ctx.strokeStyle='#b4f1ff';
       ctx.lineWidth=2;
@@ -1293,15 +848,37 @@ function draw() {
     ctx.restore();
   }
 
-  // Particles.
+  // Grab aiming indicator.
+  if(activeGrab) {
+    const g=activeGrab;
+    const a=g.attacker;
+    const cx=a.x+a.w/2;
+    const cy=a.y+a.h/2;
+    const length=65;
+
+    ctx.save();
+    ctx.strokeStyle='#fff2a6';
+    ctx.lineWidth=4;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+g.dx*length,cy+g.dy*length);
+    ctx.stroke();
+
+    ctx.fillStyle='#fff2a6';
+    ctx.beginPath();
+    ctx.arc(cx+g.dx*length,cy+g.dy*length,6,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle='white';
+    ctx.font='bold 16px Arial';
+    ctx.fillText('THROW: '+Math.ceil(g.timer/60*10)/10+'s',cx-45,cy-30);
+    ctx.restore();
+  }
+
   for(let i=particles.length-1;i>=0;i--) {
     const q=particles[i];
-
-    q.x+=q.vx;
-    q.y+=q.vy;
-    q.vx*=.97;
-    q.vy*=.97;
-    q.life--;
+    q.x+=q.vx;q.y+=q.vy;
+    q.vx*=.97;q.vy*=.97;q.life--;
 
     ctx.globalAlpha=Math.max(0,q.life/q.maxLife);
     ctx.fillStyle=q.color;
@@ -1315,106 +892,72 @@ function draw() {
   ctx.globalAlpha=1;
   ctx.shadowBlur=0;
 
-  document.querySelector('#dmg1').textContent=
-    Math.floor(players[0].damage)+'%';
-
-  document.querySelector('#dmg2').textContent=
-    Math.floor(players[1].damage)+'%';
+  document.querySelector('#dmg1').textContent=Math.floor(players[0].damage)+'%';
+  document.querySelector('#dmg2').textContent=Math.floor(players[1].damage)+'%';
 }
 
+/* GAME LOOP */
 
-/* =========================================================
-   GAME LOOP
-========================================================= */
-
-function loop(t) {
+function loop() {
   if(!activeGame) return;
 
-  if(!last) last=t;
-
-  update(players[0],players[1]);
-  update(players[1],players[0]);
+  if(activeGrab) {
+    updateGrab();
+  } else {
+    update(players[0],players[1]);
+    update(players[1],players[0]);
+  }
 
   draw();
-
-  last=t;
   raf=requestAnimationFrame(loop);
 }
 
 function restart() {
-  if(document.querySelector('#battle').style.display!=='none') {
-    initMatch();
-  }
+  if(document.querySelector('#battle').style.display!=='none') initMatch();
 }
-
 document.querySelector('#restart').onclick=restart;
 
-
-/* =========================================================
-   FULLSCREEN
-========================================================= */
+/* FULLSCREEN */
 
 const fullscreenBtn=document.querySelector('#fullscreenBtn');
 
 async function toggleFullscreen() {
   try {
-    if(!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
+    if(!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
   } catch(error) {
-    document.querySelector('#status').textContent=
-      'Fullscreen is not available in this browser.';
+    document.querySelector('#status').textContent='Fullscreen is not available in this browser.';
   }
 }
 
 fullscreenBtn.addEventListener('click',toggleFullscreen);
 
-document.addEventListener('fullscreenchange',() => {
+document.addEventListener('fullscreenchange',()=>{
   const enabled=!!document.fullscreenElement;
-
-  fullscreenBtn.textContent=
-    enabled?'⛶ Exit Fullscreen':'⛶ Fullscreen';
-
+  fullscreenBtn.textContent=enabled?'⛶ Exit Fullscreen':'⛶ Fullscreen';
   fullscreenBtn.classList.toggle('active',enabled);
 });
 
+/* KEYBOARD INPUT */
 
-/* =========================================================
-   KEYBOARD INPUT
-========================================================= */
-
-window.addEventListener('keydown',e => {
+window.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
+  const battleVisible=document.querySelector('#battle').style.display!=='none';
 
-  const battleVisible=
-    document.querySelector('#battle').style.display!=='none';
-
-  // Stop arrow keys and space from scrolling during a match.
-  if(
-    battleVisible &&
-    ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)
-  ) {
+  if(battleVisible && ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) {
     e.preventDefault();
   }
-
   keys[k]=true;
 },{passive:false});
 
-window.addEventListener('keyup',e => {
+window.addEventListener('keyup',e=>{
   keys[e.key.toLowerCase()]=false;
 });
 
-window.addEventListener('blur',() => {
-  keys={};
-});
+window.addEventListener('blur',()=>{keys={}});
 
-// Prevent accidental scrolling while the game is active.
-document.addEventListener('wheel',e => {
-  if(activeGame && document.fullscreenElement) {
-    e.preventDefault();
-  }
+document.addEventListener('wheel',e=>{
+  if(activeGame && document.fullscreenElement) e.preventDefault();
 },{passive:false});
 
 </script>
