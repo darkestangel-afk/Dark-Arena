@@ -1,0 +1,584 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dark-Arena</title>
+<style>
+:root{--bg:#090f1d;--panel:#111d31;--line:#263955;--muted:#9eb1c9;--text:#edf5ff;--blue:#4aa8ff;--pink:#ff70c5;--red:#ff626b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#172947,#090f1d 65%);color:var(--text);font:15px Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;padding:24px}
+main{max-width:1000px;margin:auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:#8ca6c5}
+.logo{font-size:22px;font-weight:850;letter-spacing:.08em}
+.screen{border:1px solid var(--line);border-radius:18px;background:#0d1728ef;overflow:hidden;box-shadow:0 20px 70px #0006}
+.heading{padding:22px 24px 10px}
+.heading h1{margin:0;font-size:clamp(24px,4vw,36px)}
+.heading p{color:var(--muted);margin:7px 0 0}
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 24px 24px}
+.character{border:1px solid var(--line);background:#111e32;border-radius:13px;padding:16px;text-align:left;color:var(--text);cursor:pointer;transition:.18s}
+.character:hover{transform:translateY(-3px);border-color:#7995b9}
+.character.selected{outline:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,#111e32)}
+.avatar{height:112px;display:grid;place-items:center;background:linear-gradient(145deg,#1c2c45,#101a2b);border-radius:10px;margin-bottom:12px}
+.figure{width:var(--w);height:var(--h);background:var(--accent);border-radius:8px 8px 4px 4px;box-shadow:0 0 25px color-mix(in srgb,var(--accent) 45%,transparent);position:relative}
+.figure:after{content:"";position:absolute;right:20%;top:22%;width:7px;height:7px;background:white;border-radius:50%}
+.character h2{margin:0 0 4px;font-size:19px}
+.character .tag{font-size:11px;color:var(--accent);font-weight:800;letter-spacing:.12em}
+.character p{font-size:12px;color:var(--muted);margin:9px 0 0;line-height:1.5}
+.stats{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:#d9e6f7}
+.stats span{background:#1b2a40;border-radius:6px;padding:5px 7px}
+.selection{border-top:1px solid var(--line);padding:20px 24px 24px;background:#0a1424}
+.selection h3{margin:0 0 14px;font-size:13px;letter-spacing:.15em;color:#9eb1c9}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.player{padding:14px;border:1px solid var(--line);border-radius:12px;background:#111e32;min-width:0}
+.player .label{font-size:11px;letter-spacing:.14em;color:var(--muted)}
+.player .picked{font-size:22px;font-weight:800;margin:7px 0 3px}
+.player .details{font-size:12px;color:var(--muted)}
+.player.p1{border-left:3px solid var(--blue)}
+.player.p2{border-left:3px solid var(--pink)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:1px solid var(--line);border-radius:9px;background:#172740;color:var(--text);padding:11px 16px;font-weight:700;cursor:pointer}
+.btn.primary{background:#eaf3ff;color:#0b1422;border-color:#eaf3ff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+#battle{display:none;padding:18px}
+#battle canvas{width:100%;height:auto;display:block;border-radius:12px;background:#101a2d;border:1px solid var(--line)}
+.hud{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.hudbox{background:#111e32;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
+.hudbox strong{font-size:20px}
+.hudbox small{display:block;color:var(--muted)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;font-size:12px;color:var(--muted);line-height:1.8}
+.controls div{background:#111e32;padding:10px;border-radius:9px}
+.controls b{color:var(--text)}
+kbd{background:#263955;color:white;padding:2px 5px;border-radius:4px}
+@media(max-width:650px){
+body{padding:10px}.roster{padding:12px;gap:7px}
+.character{padding:9px}.avatar{height:80px}
+.players{grid-template-columns:1fr}.heading{padding:17px}
+.selection{padding:16px}.controls{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main>
+<div class="topline">
+  <div>
+    <div class="eyebrow">LOCAL MULTIPLAYER · PROTOTYPE</div>
+    <div class="logo">DARK <span style="color:#70baff">ARENA</span></div>
+  </div>
+  <div class="eyebrow">CHARACTER SELECT</div>
+</div>
+
+<section class="screen" id="select">
+  <div class="heading">
+    <h1>Choose your fighter.</h1>
+    <p>Select a character for each player. Click a character card to assign it to the active player.</p>
+  </div>
+  <div class="roster" id="roster"></div>
+  <div class="selection">
+    <h3>PLAYER SELECTIONS</h3>
+    <div class="players">
+      <div class="player p1">
+        <div class="label">PLAYER 1 · BLUE</div>
+        <div class="picked" id="p1name">Brawler</div>
+        <div class="details" id="p1details"></div>
+      </div>
+      <div class="player p2">
+        <div class="label">PLAYER 2 · PINK</div>
+        <div class="picked" id="p2name">Fluff</div>
+        <div class="details" id="p2details"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="active1">Assign to Player 1</button>
+      <button class="btn" id="active2">Assign to Player 2</button>
+      <button class="btn primary" id="fight">Start Fight →</button>
+    </div>
+    <div class="hint">
+      Character dimensions are width × height in game units. One unit = 32 pixels.
+      Fall speed is a character stat. Each fighter can jump twice before landing.
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="battle">
+  <div class="heading" style="padding:4px 4px 14px">
+    <h1>Fight!</h1><p id="matchup"></p>
+  </div>
+  <div class="hud">
+    <div class="hudbox"><small id="hud1">PLAYER 1</small><strong id="dmg1">0%</strong></div>
+    <div class="hudbox"><small id="hud2">PLAYER 2</small><strong id="dmg2">0%</strong></div>
+  </div>
+  <canvas id="arena" width="960" height="540"></canvas>
+  <div class="actions">
+    <button class="btn primary" id="restart">Restart match</button>
+    <button class="btn" id="back">Character select</button>
+    <span id="status" class="hint" style="margin:8px 0 0">READY</span>
+  </div>
+  <div class="controls">
+    <div><b>PLAYER 1</b><br>
+      <kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump<br>
+      <kbd>R</kbd> Basic · <kbd>E</kbd> Special<br>
+      <kbd>X</kbd> Shield · <kbd>C</kbd> Grab
+    </div>
+    <div><b>PLAYER 2</b><br>
+      <kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump<br>
+      <kbd>P</kbd> Basic · <kbd>O</kbd> Special<br>
+      <kbd>K</kbd> Shield · <kbd>L</kbd> Grab
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const chars = {
+  Brawler:{
+    name:'Brawler',color:'#4aa8ff',weight:5,speed:50,fallSpeed:50,
+    w:1,h:2,desc:'Balanced all-rounder',
+    basic:'Forward strike · 3 × 0.5',
+    special:'360° area · diameter 3',
+    basicBox:[3,.5,'front',0,4/3],
+    specialType:'circle',specialRadius:1.5
+  },
+  Fluff:{
+    name:'Fluff',color:'#ff70c5',weight:2,speed:60,fallSpeed:30,
+    w:.75,h:1.75,desc:'Fast and lightweight',
+    basic:'Low sweep · 5 × 0.1',
+    special:'Circle · radius 1',
+    basicBox:[5,.1,'front',0,.05],
+    specialType:'circle',specialRadius:1,
+    specialOffset:[.325,1.75]
+  },
+  Heavy:{
+    name:'Heavy',color:'#ff626b',weight:7,speed:40,fallSpeed:60,
+    w:1.1,h:2.2,desc:'Slow, powerful bruiser',
+    basic:'Heavy strike · 4 × 0.75',
+    special:'40% speed + damage for 3 seconds',
+    basicBox:[4,.75,'center',.55,1.7],
+    specialType:'buff'
+  }
+};
+
+let chosen=['Brawler','Fluff'],active=0;
+const roster=document.querySelector('#roster');
+
+function renderSelect(){
+  roster.innerHTML='';
+  Object.entries(chars).forEach(([name,c])=>{
+    const card=document.createElement('button');
+    card.className='character'+(chosen.includes(name)?' selected':'');
+    card.style.setProperty('--accent',c.color);
+    card.innerHTML=`
+      <div class="avatar">
+        <div class="figure" style="--accent:${c.color};--w:${Math.max(20,c.w*32)}px;--h:${c.h*42}px"></div>
+      </div>
+      <div class="tag">${c.desc.toUpperCase()}</div>
+      <h2>${name}</h2>
+      <p>${c.basic}<br>${c.special}</p>
+      <div class="stats">
+        <span>WEIGHT ${c.weight}</span>
+        <span>SPEED ${c.speed}</span>
+        <span>FALL ${c.fallSpeed}</span>
+        <span>SIZE ${c.w} × ${c.h}</span>
+      </div>`;
+    card.addEventListener('click',()=>{
+      chosen[active]=name;
+      renderSelect();
+    });
+    roster.append(card);
+  });
+
+  for(let i=0;i<2;i++){
+    let c=chars[chosen[i]];
+    document.querySelector(`#p${i+1}name`).textContent=chosen[i];
+    document.querySelector(`#p${i+1}details`).textContent=
+      `Weight ${c.weight} · Speed ${c.speed} · Fall ${c.fallSpeed} · Size ${c.w} × ${c.h}`;
+  }
+  document.querySelector('#active1').style.outline=active===0?'2px solid #4aa8ff':'none';
+  document.querySelector('#active2').style.outline=active===1?'2px solid #ff70c5':'none';
+}
+
+document.querySelector('#active1').onclick=()=>{active=0;renderSelect()};
+document.querySelector('#active2').onclick=()=>{active=1;renderSelect()};
+document.querySelector('#fight').onclick=()=>{
+  document.querySelector('#select').style.display='none';
+  document.querySelector('#battle').style.display='block';
+  initMatch();
+};
+document.querySelector('#back').onclick=()=>{
+  stop();
+  document.querySelector('#battle').style.display='none';
+  document.querySelector('#select').style.display='block';
+};
+renderSelect();
+
+const canvas=document.querySelector('#arena');
+const ctx=canvas.getContext('2d');
+const W=960,H=540,U=32,floorY=440;
+let players=[],keys={},raf=0,activeGame=false,particles=[];
+const controls=[
+  {left:'a',right:'d',jump:'w',basic:'r',special:'e',shield:'x',grab:'c'},
+  {left:'arrowleft',right:'arrowright',jump:'arrowup',basic:'p',special:'o',shield:'k',grab:'l'}
+];
+
+const platforms=[
+  {x:85,y:floorY,w:790,h:30},
+  {x:290,y:325,w:150,h:14},
+  {x:520,y:325,w:150,h:14}
+];
+
+function makePlayer(name,x,face,i){
+  let c=chars[name];
+  return {
+    name,c,x,y:floorY-c.h*U,vx:0,vy:0,
+    w:c.w*U,h:c.h*U,face,damage:0,
+    ground:true,jumpsRemaining:2,
+    attack:0,cool:0,invul:0,stun:0,
+    shield:false,buff:0,controls:controls[i],ko:0,
+    hitTargets:{}
+  };
+}
+
+function initMatch(){
+  stop();
+  players=[
+    makePlayer(chosen[0],250,1,0),
+    makePlayer(chosen[1],670,-1,1)
+  ];
+  particles=[];
+  keys={};
+  activeGame=true;
+  document.querySelector('#matchup').textContent=chosen[0]+' vs '+chosen[1];
+  document.querySelector('#hud1').textContent='PLAYER 1 · '+chosen[0];
+  document.querySelector('#hud2').textContent='PLAYER 2 · '+chosen[1];
+  document.querySelector('#status').textContent='FIGHT!';
+  draw();
+  raf=requestAnimationFrame(loop);
+}
+
+function stop(){
+  activeGame=false;
+  cancelAnimationFrame(raf);
+}
+
+function rect(x,y,w,h){return{x,y,w,h}}
+
+function overlaps(a,b){
+  return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+}
+
+function hit(p,type){
+  if(p.cool||p.stun)return;
+  p.attack=type==='special'?22:14;
+  p.attackType=type;
+  p.cool=type==='special'?65:30;
+  p.hitTargets={};
+
+  // Heavy activates its temporary power-up immediately.
+  if(type==='special'&&p.c.name==='Heavy'){
+    p.buff=180;
+    p.attack=0;
+    document.querySelector('#status').textContent=
+      p.name+' activated Heavy Power!';
+  }
+}
+
+function basicRect(p){
+  const [width,height,where,cx,cy]=p.c.basicBox;
+  const bw=width*U,bh=Math.max(2,height*U);
+  const centerY=p.y+p.h-cy*U;
+  let centerX;
+
+  if(where==='center'){
+    centerX=p.x+cx*U;
+  }else{
+    centerX=p.x+p.w/2+p.face*(bw/2+p.w/2);
+  }
+
+  return rect(centerX-bw/2,centerY-bh/2,bw,bh);
+}
+
+function damageHit(att,def,type){
+  if(def.invul||def.shield)return;
+
+  let c=att.c;
+  let damage=type==='special'?12:
+    type==='grab'?9:
+    c.name==='Heavy'?10:7;
+
+  if(type==='special'&&c.name==='Heavy')return;
+
+  const buffMultiplier=att.buff>0?1.4:1;
+  def.damage+=damage*buffMultiplier;
+
+  const forceType=type==='special'?1.2:type==='grab'?1.1:1;
+  const force=(5+def.damage*.105)*(5/def.c.weight)*forceType;
+
+  def.vx=att.face*force;
+  def.vy=-Math.min(18,5+def.damage*.055)*(5/def.c.weight)*forceType;
+  def.stun=12;
+  def.invul=16;
+
+  for(let i=0;i<12;i++){
+    particles.push({
+      x:def.x+def.w/2,y:def.y+def.h/2,
+      vx:(Math.random()-.5)*8,
+      vy:(Math.random()-.5)*8,
+      life:24,color:def.c.color
+    });
+  }
+}
+
+function attackShape(p){
+  if(p.attackType==='basic'||p.attackType==='grab'){
+    return basicRect(p);
+  }
+
+  if(p.attackType==='special'&&p.c.name!=='Heavy'){
+    const r=p.c.specialRadius*U;
+    let cx=p.x+p.w/2;
+    let cy=p.y+p.h/2;
+
+    if(p.c.specialOffset){
+      cx=p.x+p.c.specialOffset[0]*U;
+      cy=p.y+p.h-p.c.specialOffset[1]*U;
+    }
+
+    return{circle:true,x:cx,y:cy,r};
+  }
+  return null;
+}
+
+function checkAttack(p,op){
+  if(p.attack<=0)return;
+
+  // One hit per attack, preventing repeated damage during the same swing.
+  if(p.hitTargets[op.name])return;
+
+  if(p.attackType==='special'&&p.attack===21){
+    const s=attackShape(p);
+    if(s&&s.circle){
+      const dx=op.x+op.w/2-s.x;
+      const dy=op.y+op.h/2-s.y;
+      if(Math.hypot(dx,dy)<s.r+Math.min(op.w,op.h)/2){
+        damageHit(p,op,'special');
+        p.hitTargets[op.name]=true;
+      }
+    }
+    return;
+  }
+
+  if(p.attack%8===0){
+    const b=attackShape(p);
+    if(b&&overlaps(b,rect(op.x,op.y,op.w,op.h))){
+      damageHit(p,op,p.attackType);
+      p.hitTargets[op.name]=true;
+    }
+  }
+}
+
+function update(p,op){
+  const k=p.controls,c=p.c;
+
+  p.cool=Math.max(0,p.cool-1);
+  p.attack=Math.max(0,p.attack-1);
+  p.invul=Math.max(0,p.invul-1);
+  p.stun=Math.max(0,p.stun-1);
+  p.buff=Math.max(0,p.buff-1);
+
+  p.shield=!!keys[k.shield]&&p.ground&&!p.stun;
+
+  if(!p.stun){
+    const buffMultiplier=p.buff>0?1.4:1;
+    const speed=(c.speed/50)*4.4*buffMultiplier*(p.shield?.45:1);
+
+    if(keys[k.left]){
+      p.vx-=.75;
+      p.face=-1;
+    }
+    if(keys[k.right]){
+      p.vx+=.75;
+      p.face=1;
+    }
+
+    p.vx=Math.max(-speed,Math.min(speed,p.vx));
+
+    if(!keys[k.left]&&!keys[k.right])p.vx*=.78;
+
+    // Two total jumps: one ground jump and one additional air jump.
+    if(keys[k.jump]&&!p.jumpHeld&&p.jumpsRemaining>0){
+      p.vy=-12;
+      p.ground=false;
+      p.jumpsRemaining--;
+    }
+    p.jumpHeld=!!keys[k.jump];
+
+    if(keys[k.basic])hit(p,'basic');
+    if(keys[k.special])hit(p,'special');
+    if(keys[k.grab])hit(p,'grab');
+  }else{
+    p.jumpHeld=!!keys[k.jump];
+  }
+
+  p.x+=p.vx;
+  p.y+=p.vy;
+
+  // Fall-speed stat is converted to a maximum downward velocity.
+  const maxFallSpeed=c.fallSpeed/10;
+  p.vy=Math.min(maxFallSpeed,p.vy+.57);
+
+  p.ground=false;
+
+  for(const s of platforms){
+    if(p.vy>=0&&p.x+p.w>s.x&&p.x<s.x+s.w&&
+       p.y+p.h>=s.y&&p.y+p.h-p.vy<=s.y+5){
+      p.y=s.y-p.h;
+      p.vy=0;
+      p.ground=true;
+      p.jumpsRemaining=2;
+    }
+  }
+
+  p.x=Math.max(0,Math.min(W-p.w,p.x));
+  checkAttack(p,op);
+
+  if(p.y>H+80){
+    p.ko++;
+    document.querySelector('#status').textContent=
+      (p===players[0]?'PLAYER 2':'PLAYER 1')+' SCORES A KO!';
+    p.x=p===players[0]?250:670;
+    p.y=150;
+    p.vx=0;
+    p.vy=0;
+    p.damage=0;
+    p.invul=100;
+    p.jumpsRemaining=2;
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#101a31');
+  g.addColorStop(1,'#182b43');
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle='rgba(111,173,220,.10)';
+  for(let x=0;x<W;x+=40){
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,H);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle='#263b56';
+  ctx.fillRect(85,floorY,790,30);
+  ctx.fillStyle='#78a9d1';
+  ctx.fillRect(85,floorY,790,4);
+
+  for(const s of platforms.slice(1)){
+    ctx.fillStyle='#344b69';
+    ctx.fillRect(s.x,s.y,s.w,s.h);
+    ctx.fillStyle='#78a9d1';
+    ctx.fillRect(s.x,s.y,s.w,3);
+  }
+
+  for(const p of players){
+    ctx.save();
+    ctx.globalAlpha=p.invul&&Math.floor(p.invul/5)%2?.35:1;
+    ctx.fillStyle=p.c.color;
+    ctx.fillRect(p.x,p.y,p.w,p.h);
+
+    ctx.fillStyle='white';
+    ctx.fillRect(
+      p.x+(p.face>0?p.w*.68:p.w*.18),
+      p.y+p.h*.25,6,6
+    );
+
+    if(p.shield){
+      ctx.strokeStyle='#b4f1ff';
+      ctx.lineWidth=5;
+      ctx.beginPath();
+      ctx.ellipse(p.x+p.w/2,p.y+p.h/2,p.w*.9,p.h*.75,0,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    if(p.attack>0){
+      const s=attackShape(p);
+      if(s){
+        ctx.fillStyle=p.attackType==='special'
+          ?'rgba(255,220,100,.32)'
+          :'rgba(255,255,255,.28)';
+        if(s.circle){
+          ctx.beginPath();
+          ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+          ctx.fill();
+        }else{
+          ctx.fillRect(s.x,s.y,s.w,s.h);
+        }
+      }
+    }
+
+    if(p.buff>0){
+      ctx.strokeStyle='#ffd166';
+      ctx.lineWidth=3;
+      ctx.strokeRect(p.x-5,p.y-5,p.w+10,p.h+10);
+    }
+
+    ctx.restore();
+  }
+
+  for(let i=particles.length-1;i>=0;i--){
+    const q=particles[i];
+    q.x+=q.vx;
+    q.y+=q.vy;
+    q.life--;
+    ctx.globalAlpha=Math.max(0,q.life/24);
+    ctx.fillStyle=q.color;
+    ctx.fillRect(q.x,q.y,5,5);
+    if(q.life<=0)particles.splice(i,1);
+  }
+  ctx.globalAlpha=1;
+
+  document.querySelector('#dmg1').textContent=
+    Math.floor(players[0].damage)+'%';
+  document.querySelector('#dmg2').textContent=
+    Math.floor(players[1].damage)+'%';
+}
+
+function loop(){
+  if(!activeGame)return;
+  update(players[0],players[1]);
+  update(players[1],players[0]);
+  draw();
+  raf=requestAnimationFrame(loop);
+}
+
+function restart(){
+  if(document.querySelector('#battle').style.display!=='none'){
+    initMatch();
+  }
+}
+
+document.querySelector('#restart').onclick=restart;
+
+window.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(['arrowup','arrowleft','arrowright',' '].includes(k)){
+    e.preventDefault();
+  }
+  keys[k]=true;
+});
+
+window.addEventListener('keyup',e=>{
+  keys[e.key.toLowerCase()]=false;
+});
+
+window.addEventListener('blur',()=>keys={});
+</script>
+</body>
+</html>
