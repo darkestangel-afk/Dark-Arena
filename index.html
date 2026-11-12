@@ -6,155 +6,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dark-Arena</title>
 <style>
-:root {
-  --line:#263955;
-  --muted:#9eb1c9;
-  --text:#edf5ff;
-}
-* {box-sizing:border-box}
-html,body {margin:0;min-height:100%}
-body {
-  background:radial-gradient(ellipse at top,#172947,#090f1d 65%);
-  color:var(--text);
-  font:15px Inter,system-ui,Segoe UI,sans-serif;
-  min-height:100vh;
-  padding:24px;
-}
-body.playing {overflow:hidden;overscroll-behavior:none}
-main {max-width:1000px;margin:auto}
-.topline {
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;margin-bottom:20px;
-}
-.eyebrow {font-size:11px;letter-spacing:.2em;color:#8ca6c5}
-.logo {font-size:22px;font-weight:850;letter-spacing:.08em}
-.screen {
-  border:1px solid var(--line);border-radius:18px;
-  background:#0d1728ef;overflow:hidden;
-  box-shadow:0 20px 70px #0006;
-}
-.heading {padding:22px 24px 10px}
-.heading h1 {margin:0;font-size:clamp(24px,4vw,36px)}
-.heading p {color:var(--muted);margin:7px 0 0}
-.roster {
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:12px;padding:16px 24px 24px;
-}
-.character {
-  border:1px solid var(--line);background:#111e32;
-  border-radius:13px;padding:16px;text-align:left;
-  color:var(--text);cursor:pointer;transition:.18s;
-}
-.character:hover {transform:translateY(-3px);border-color:#7995b9}
-.character.selected {
-  outline:2px solid var(--accent);
-  background:color-mix(in srgb,var(--accent) 12%,#111e32);
-}
-.avatar {
-  height:112px;display:grid;place-items:center;
-  background:linear-gradient(145deg,#1c2c45,#101a2b);
-  border-radius:10px;margin-bottom:12px;
-}
-.figure {
-  width:var(--w);height:var(--h);background:var(--accent);
-  border-radius:8px 8px 4px 4px;
-  box-shadow:0 0 25px color-mix(in srgb,var(--accent) 45%,transparent);
-  position:relative;
-}
-.figure:after {
-  content:"";position:absolute;right:20%;top:22%;
-  width:7px;height:7px;background:white;border-radius:50%;
-}
-.character h2 {margin:0 0 4px;font-size:19px}
-.character .tag {
-  font-size:11px;color:var(--accent);
-  font-weight:800;letter-spacing:.12em;
-}
-.character p {
-  font-size:12px;color:var(--muted);
-  margin:9px 0 0;line-height:1.5;
-}
-.stats {
-  display:flex;gap:10px;margin-top:12px;
-  font-size:11px;color:#d9e6f7;flex-wrap:wrap;
-}
-.stats span {background:#1b2a40;border-radius:6px;padding:5px 7px}
-.selection {
-  border-top:1px solid var(--line);
-  padding:20px 24px 24px;background:#0a1424;
-}
-.selection h3 {
-  margin:0 0 14px;font-size:13px;
-  letter-spacing:.15em;color:#9eb1c9;
-}
-.players {display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.player {
-  padding:14px;border:1px solid var(--line);
-  border-radius:12px;background:#111e32;min-width:0;
-}
-.player .label {font-size:11px;letter-spacing:.14em;color:var(--muted)}
-.player .picked {font-size:22px;font-weight:800;margin:7px 0 3px}
-.player .details {font-size:12px;color:var(--muted)}
-.player.p1 {border-left:3px solid #4aa8ff}
-.player.p2 {border-left:3px solid #ff70c5}
-.actions {display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
-.btn {
-  border:1px solid var(--line);border-radius:9px;
-  background:#172740;color:var(--text);
-  padding:11px 16px;font-weight:700;cursor:pointer;
-}
-.btn:hover {filter:brightness(1.2)}
-.btn.primary {background:#eaf3ff;color:#0b1422;border-color:#eaf3ff}
-.hint {font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
-#battle {display:none;padding:18px}
-#battle canvas {
-  width:100%;height:auto;display:block;
-  border-radius:12px;background:#101a2d;
-  border:1px solid var(--line);touch-action:none;
-}
-.hud {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.hudbox {
-  background:#111e32;border:1px solid var(--line);
-  border-radius:10px;padding:10px 13px;
-}
-.hudbox strong {font-size:20px}
-.hudbox small {display:block;color:var(--muted)}
-.controls {
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:10px;margin-top:12px;font-size:12px;
-  color:var(--muted);line-height:1.8;
-}
-.controls div {background:#111e32;padding:10px;border-radius:9px}
-.controls b {color:var(--text)}
-kbd {background:#263955;color:white;padding:2px 5px;border-radius:4px}
-#fullscreenBtn {margin-left:auto}
-#fullscreenBtn.active {border-color:#70baff;color:#70baff}
-:fullscreen {background:#090f1d}
-:fullscreen body {padding:0;overflow:hidden}
-:fullscreen main {
-  width:100%;max-width:none;min-height:100vh;
-  padding:12px;display:flex;flex-direction:column;
-}
-:fullscreen .topline {margin-bottom:10px}
-:fullscreen #battle {
-  flex:1;display:flex;flex-direction:column;
-  justify-content:center;min-height:0;
-}
-:fullscreen #battle canvas {width:100%;max-height:72vh;object-fit:contain}
-@media(max-width:650px) {
-  body {padding:10px}
-  .roster {padding:12px;gap:7px}
-  .character {padding:9px}
-  .avatar {height:80px}
-  .stats {flex-direction:column;gap:4px}
-  .players {grid-template-columns:1fr}
-  .heading {padding:17px}
-  .selection {padding:16px}
-  .controls {grid-template-columns:1fr}
+:root{--line:#263955;--muted:#9eb1c9;--text:#edf5ff}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(ellipse at top,#172947,#090f1d 65%);color:var(--text);font:15px Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;padding:24px}
+body.playing{overflow:hidden;overscroll-behavior:none}
+main{max-width:1000px;margin:auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:#8ca6c5}
+.logo{font-size:22px;font-weight:850;letter-spacing:.08em}
+.screen{border:1px solid var(--line);border-radius:18px;background:#0d1728ef;overflow:hidden;box-shadow:0 20px 70px #0006}
+.heading{padding:22px 24px 10px}
+.heading h1{margin:0;font-size:clamp(24px,4vw,36px)}
+.heading p{color:var(--muted);margin:7px 0 0}
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 24px 24px}
+.character{border:1px solid var(--line);background:#111e32;border-radius:13px;padding:16px;text-align:left;color:var(--text);cursor:pointer;transition:.18s}
+.character:hover{transform:translateY(-3px);border-color:#7995b9}
+.character.selected{outline:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,#111e32)}
+.avatar{height:112px;display:grid;place-items:center;background:linear-gradient(145deg,#1c2c45,#101a2b);border-radius:10px;margin-bottom:12px}
+.figure{width:var(--w);height:var(--h);background:var(--accent);border-radius:8px 8px 4px 4px;box-shadow:0 0 25px color-mix(in srgb,var(--accent) 45%,transparent);position:relative}
+.figure:after{content:"";position:absolute;right:20%;top:22%;width:7px;height:7px;background:white;border-radius:50%}
+.character h2{margin:0 0 4px;font-size:19px}
+.character .tag{font-size:11px;color:var(--accent);font-weight:800;letter-spacing:.12em}
+.character p{font-size:12px;color:var(--muted);margin:9px 0 0;line-height:1.5}
+.stats{display:flex;gap:10px;margin-top:12px;font-size:11px;color:#d9e6f7;flex-wrap:wrap}
+.stats span{background:#1b2a40;border-radius:6px;padding:5px 7px}
+.selection{border-top:1px solid var(--line);padding:20px 24px 24px;background:#0a1424}
+.selection h3{margin:0 0 14px;font-size:13px;letter-spacing:.15em;color:#9eb1c9}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.player{padding:14px;border:1px solid var(--line);border-radius:12px;background:#111e32;min-width:0}
+.player .label{font-size:11px;letter-spacing:.14em;color:var(--muted)}
+.player .picked{font-size:22px;font-weight:800;margin:7px 0 3px}
+.player .details{font-size:12px;color:var(--muted)}
+.player.p1{border-left:3px solid #4aa8ff}
+.player.p2{border-left:3px solid #ff70c5}
+.config{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.config label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.config select{width:100%;background:#0b1729;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px}
+.difficulty{margin-top:9px}
+.difficulty.hidden{display:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.btn{border:1px solid var(--line);border-radius:9px;background:#172740;color:var(--text);padding:11px 16px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.2)}
+.btn.primary{background:#eaf3ff;color:#0b1422;border-color:#eaf3ff}
+.hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+#battle{display:none;padding:18px}
+#battle canvas{width:100%;height:auto;display:block;border-radius:12px;background:#101a2d;border:1px solid var(--line);touch-action:none}
+.hud{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.hudbox{background:#111e32;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
+.hudbox strong{font-size:20px}
+.hudbox small{display:block;color:var(--muted)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;font-size:12px;color:var(--muted);line-height:1.8}
+.controls div{background:#111e32;padding:10px;border-radius:9px}
+.controls b{color:var(--text)}
+kbd{background:#263955;color:white;padding:2px 5px;border-radius:4px}
+#fullscreenBtn{margin-left:auto}
+#fullscreenBtn.active{border-color:#70baff;color:#70baff}
+:fullscreen{background:#090f1d}
+:fullscreen body{padding:0;overflow:hidden}
+:fullscreen main{width:100%;max-width:none;min-height:100vh;padding:12px;display:flex;flex-direction:column}
+:fullscreen .topline{margin-bottom:10px}
+:fullscreen #battle{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+:fullscreen #battle canvas{width:100%;max-height:72vh;object-fit:contain}
+@media(max-width:650px){
+body{padding:10px}.roster{padding:12px;gap:7px}.character{padding:9px}.avatar{height:80px}
+.stats{flex-direction:column;gap:4px}.players{grid-template-columns:1fr}
+.heading{padding:17px}.selection{padding:16px}.controls{grid-template-columns:1fr}
 }
 </style>
 </head>
-
 <body>
 <main>
 <div class="topline">
@@ -178,11 +98,57 @@ kbd {background:#263955;color:white;padding:2px 5px;border-radius:4px}
         <div class="label">PLAYER 1 · BLUE</div>
         <div class="picked" id="p1name">Brawler</div>
         <div class="details" id="p1details"></div>
+        <div class="config">
+          <div>
+            <label for="p1mode">CONTROL</label>
+            <select id="p1mode">
+              <option value="human">Human</option>
+              <option value="cpu">CPU</option>
+            </select>
+          </div>
+          <div class="difficulty hidden" id="p1difficulty">
+            <label for="p1level">CPU DIFFICULTY</label>
+            <select id="p1level">
+              <option value="1">Level 1 · Beginner</option>
+              <option value="2">Level 2</option>
+              <option value="3">Level 3</option>
+              <option value="4">Level 4</option>
+              <option value="5" selected>Level 5 · Normal</option>
+              <option value="6">Level 6</option>
+              <option value="7">Level 7</option>
+              <option value="8">Level 8</option>
+              <option value="9">Level 9 · Expert</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="player p2">
         <div class="label">PLAYER 2 · PINK</div>
         <div class="picked" id="p2name">Fluff</div>
         <div class="details" id="p2details"></div>
+        <div class="config">
+          <div>
+            <label for="p2mode">CONTROL</label>
+            <select id="p2mode">
+              <option value="human">Human</option>
+              <option value="cpu">CPU</option>
+            </select>
+          </div>
+          <div class="difficulty hidden" id="p2difficulty">
+            <label for="p2level">CPU DIFFICULTY</label>
+            <select id="p2level">
+              <option value="1">Level 1 · Beginner</option>
+              <option value="2">Level 2</option>
+              <option value="3">Level 3</option>
+              <option value="4">Level 4</option>
+              <option value="5" selected>Level 5 · Normal</option>
+              <option value="6">Level 6</option>
+              <option value="7">Level 7</option>
+              <option value="8">Level 8</option>
+              <option value="9">Level 9 · Expert</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -196,20 +162,11 @@ kbd {background:#263955;color:white;padding:2px 5px;border-radius:4px}
 
 <section class="screen" id="battle">
   <div class="heading" style="padding:4px 4px 14px">
-    <h1>Fight!</h1>
-    <p id="matchup"></p>
+    <h1>Fight!</h1><p id="matchup"></p>
   </div>
   <div class="hud">
-    <div class="hudbox">
-      <small id="hud1">PLAYER 1</small>
-      <strong id="dmg1">0%</strong>
-      <small id="shield1">Shield: 100%</small>
-    </div>
-    <div class="hudbox">
-      <small id="hud2">PLAYER 2</small>
-      <strong id="dmg2">0%</strong>
-      <small id="shield2">Shield: 100%</small>
-    </div>
+    <div class="hudbox"><small id="hud1">PLAYER 1</small><strong id="dmg1">0%</strong><small id="shield1">Shield: 100%</small></div>
+    <div class="hudbox"><small id="hud2">PLAYER 2</small><strong id="dmg2">0%</strong><small id="shield2">Shield: 100%</small></div>
   </div>
   <canvas id="arena" width="960" height="540"></canvas>
   <div class="actions">
@@ -219,583 +176,429 @@ kbd {background:#263955;color:white;padding:2px 5px;border-radius:4px}
     <span id="status" class="hint" style="margin:8px 0 0">READY</span>
   </div>
   <div class="controls">
-    <div>
-      <b>PLAYER 1</b><br>
-      <kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump<br>
-      <kbd>R</kbd> Basic · <kbd>E</kbd> Special<br>
-      <kbd>X</kbd> Shield · <kbd>C</kbd> Grab<br>
-      <kbd>S</kbd> Fast fall · Aim grab with WASD.
-    </div>
-    <div>
-      <b>PLAYER 2</b><br>
-      <kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump<br>
-      <kbd>P</kbd> Basic · <kbd>O</kbd> Special<br>
-      <kbd>K</kbd> Shield · <kbd>L</kbd> Grab<br>
-      <kbd>↓</kbd> Fast fall · Aim grab with arrows.
-    </div>
+    <div><b>PLAYER 1</b><br><kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump<br><kbd>R</kbd> Basic · <kbd>E</kbd> Special<br><kbd>X</kbd> Shield · <kbd>C</kbd> Grab<br><kbd>S</kbd> Fast fall · Aim grab with WASD.</div>
+    <div><b>PLAYER 2</b><br><kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump<br><kbd>P</kbd> Basic · <kbd>O</kbd> Special<br><kbd>K</kbd> Shield · <kbd>L</kbd> Grab<br><kbd>↓</kbd> Fast fall · Aim grab with arrows.</div>
   </div>
-  <div class="hint">
-    Shield: 5 seconds maximum use, 30 seconds to fully recharge.
-    Press <kbd>Esc</kbd> to leave fullscreen.
-  </div>
+  <div class="hint">Shield: 5 seconds maximum use, 30 seconds to fully recharge. Press <kbd>Esc</kbd> to leave fullscreen.</div>
 </section>
 </main>
 
 <script>
 /* CHARACTER DATA */
-
-const chars = {
-  Brawler: {
-    name:'Brawler',color:'#4aa8ff',weight:5,speed:50,fallSpeed:50,
-    w:1,h:2,jumpChange:-2,
-    basic:'Forward strike · 3 × 0.5 · 7% damage',
-    special:'360° area · 25% damage',
-    desc:'Balanced all-rounder',
-    basicBox:[3,.5,'front',0,2/3],
-    specialRadius:1.5
-  },
-  Fluff: {
-    name:'Fluff',color:'#ff70c5',weight:2,speed:60,fallSpeed:30,
-    w:.75,h:1.75,jumpChange:2,
-    basic:'Low sweep · 5 × 0.1 · 8% damage',
-    special:'Circle · radius 1 · 20% damage',
-    desc:'Fast and lightweight',
-    basicBox:[5,.1,'front',0,.05],
-    specialRadius:1,
-    specialOffset:[.325,1.75]
-  },
-  Heavy: {
-    name:'Heavy',color:'#ff626b',weight:7,speed:40,fallSpeed:60,
-    w:1.1,h:2.2,jumpChange:-6,
-    basic:'Two-sided strike · 4 × 0.75 · 10% damage · 1.5s cooldown',
-    special:'+40% speed and damage for 3 seconds · 10s cooldown',
-    desc:'Slow, powerful bruiser',
-    basicBox:[4,.75,'center',.55,1.7]
-  }
+const chars={
+Brawler:{name:'Brawler',color:'#4aa8ff',weight:5,speed:50,fallSpeed:50,w:1,h:2,jumpChange:-2,basic:'Forward strike · 3 × 0.5 · 7% damage',special:'360° area · 25% damage',desc:'Balanced all-rounder',basicBox:[3,.5,'front',0,2/3],specialRadius:1.5},
+Fluff:{name:'Fluff',color:'#ff70c5',weight:2,speed:60,fallSpeed:30,w:.75,h:1.75,jumpChange:2,basic:'Low sweep · 5 × 0.1 · 8% damage',special:'Circle · radius 1 · 20% damage',desc:'Fast and lightweight',basicBox:[5,.1,'front',0,.05],specialRadius:1,specialOffset:[.325,1.75]},
+Heavy:{name:'Heavy',color:'#ff626b',weight:7,speed:40,fallSpeed:60,w:1.1,h:2.2,jumpChange:-6,basic:'Two-sided strike · 4 × 0.75 · 10% damage · 1.5s cooldown',special:'+40% speed and damage for 3 seconds · 10s cooldown',desc:'Slow, powerful bruiser',basicBox:[4,.75,'center',.55,1.7]}
 };
 
 let chosen=['Brawler','Fluff'];
 let active=0;
+const playerModes=['human','human'];
+const cpuLevels=[5,5];
 const roster=document.querySelector('#roster');
 
-function renderSelect() {
+function renderSelect(){
   roster.innerHTML='';
-
-  Object.entries(chars).forEach(([name,c]) => {
+  Object.entries(chars).forEach(([name,c])=>{
     const card=document.createElement('button');
     card.className='character'+(chosen.includes(name)?' selected':'');
     card.style.setProperty('--accent',c.color);
-
-    card.innerHTML=`
-      <div class="avatar">
-        <div class="figure" style="--accent:${c.color};--w:${Math.max(20,c.w*32)}px;--h:${c.h*42}px"></div>
-      </div>
-      <div class="tag">${c.desc.toUpperCase()}</div>
-      <h2>${name}</h2>
-      <p>${c.basic}<br>${c.special}</p>
-      <div class="stats">
-        <span>WEIGHT ${c.weight}</span>
-        <span>SPEED ${c.speed}</span>
-        <span>FALL ${c.fallSpeed}</span>
-        <span>JUMP ${c.jumpChange>0?'+':''}${c.jumpChange}px</span>
-      </div>`;
-
-    card.addEventListener('click',()=>{
-      chosen[active]=name;
-      renderSelect();
-    });
-
+    card.innerHTML=`<div class="avatar"><div class="figure" style="--accent:${c.color};--w:${Math.max(20,c.w*32)}px;--h:${c.h*42}px"></div></div><div class="tag">${c.desc.toUpperCase()}</div><h2>${name}</h2><p>${c.basic}<br>${c.special}</p><div class="stats"><span>WEIGHT ${c.weight}</span><span>SPEED ${c.speed}</span><span>FALL ${c.fallSpeed}</span><span>JUMP ${c.jumpChange>0?'+':''}${c.jumpChange}px</span></div>`;
+    card.addEventListener('click',()=>{chosen[active]=name;renderSelect()});
     roster.append(card);
   });
-
-  for(let i=0;i<2;i++) {
+  for(let i=0;i<2;i++){
     const c=chars[chosen[i]];
     document.querySelector(`#p${i+1}name`).textContent=chosen[i];
-    document.querySelector(`#p${i+1}details`).textContent=
-      `Weight ${c.weight} · Speed ${c.speed} · Fall ${c.fallSpeed} · Jump ${c.jumpChange>0?'+':''}${c.jumpChange}px`;
+    document.querySelector(`#p${i+1}details`).textContent=`Weight ${c.weight} · Speed ${c.speed} · Fall ${c.fallSpeed} · Jump ${c.jumpChange>0?'+':''}${c.jumpChange}px`;
+    document.querySelector(`#p${i+1}mode`).value=playerModes[i];
+    document.querySelector(`#p${i+1}level`).value=cpuLevels[i];
+    document.querySelector(`#p${i+1}difficulty`).classList.toggle('hidden',playerModes[i]!=='cpu');
   }
-
   document.querySelector('#active1').style.outline=active===0?'2px solid #4aa8ff':'none';
   document.querySelector('#active2').style.outline=active===1?'2px solid #ff70c5':'none';
 }
 
+for(let i=0;i<2;i++){
+  document.querySelector(`#p${i+1}mode`).addEventListener('change',e=>{playerModes[i]=e.target.value;renderSelect()});
+  document.querySelector(`#p${i+1}level`).addEventListener('change',e=>{cpuLevels[i]=Number(e.target.value)});
+}
 document.querySelector('#active1').onclick=()=>{active=0;renderSelect()};
 document.querySelector('#active2').onclick=()=>{active=1;renderSelect()};
-
 document.querySelector('#fight').onclick=()=>{
   document.querySelector('#select').style.display='none';
   document.querySelector('#battle').style.display='block';
   document.body.classList.add('playing');
   initMatch();
 };
-
 document.querySelector('#back').onclick=()=>{
-  stop();
-  activeGrab=null;
+  stop();activeGrab=null;
   document.querySelector('#battle').style.display='none';
   document.querySelector('#select').style.display='block';
   document.body.classList.remove('playing');
 };
-
 renderSelect();
 
 /* GAME SETUP */
-
 const canvas=document.querySelector('#arena');
 const ctx=canvas.getContext('2d');
-
-const W=960,H=540,U=32,floorY=440;
-const GRAVITY=.57;
-
-const SHIELD_MAX=300;          // 5 seconds at 60 FPS
-const SHIELD_RECHARGE=1/6;     // 30 seconds to refill 300 frames
-
-let players=[];
-let keys={};
-let raf=0;
-let activeGame=false;
-let particles=[];
-let activeGrab=null;
+const W=960,H=540,U=32,floorY=440,GRAVITY=.57;
+const SHIELD_MAX=300,SHIELD_RECHARGE=1/6;
+let players=[],keys={},raf=0,activeGame=false,particles=[],activeGrab=null;
+let frameCount=0;
 
 const controls=[
-  {
-    left:'a',right:'d',jump:'w',down:'s',
-    basic:'r',special:'e',shield:'x',grab:'c'
-  },
-  {
-    left:'arrowleft',right:'arrowright',jump:'arrowup',down:'arrowdown',
-    basic:'p',special:'o',shield:'k',grab:'l'
-  }
+{left:'a',right:'d',jump:'w',down:'s',basic:'r',special:'e',shield:'x',grab:'c'},
+{left:'arrowleft',right:'arrowright',jump:'arrowup',down:'arrowdown',basic:'p',special:'o',shield:'k',grab:'l'}
 ];
-
 const platforms=[
-  {x:85,y:floorY,w:790,h:30},
-  {x:290,y:325,w:150,h:14},
-  {x:520,y:325,w:150,h:14}
+{x:85,y:floorY,w:790,h:30},
+{x:290,y:325,w:150,h:14},
+{x:520,y:325,w:150,h:14}
 ];
 
-function makePlayer(name,x,face,i) {
+function makePlayer(name,x,face,i){
   const c=chars[name];
-
-  return {
-    name,c,x,y:floorY-c.h*U,
-    vx:0,vy:0,w:c.w*U,h:c.h*U,
-    face,damage:0,ground:true,
-    attack:0,attackType:null,hitTargets:{},
-    basicCool:0,specialCool:0,grabCool:0,
-    invul:0,stun:0,shield:false,buff:0,
-    movementLock:0,fallSlow:0,
-    jumpsRemaining:2,jumpHeld:false,
-    controls:controls[i],ko:0,shiny:0,
-    shieldEnergy:SHIELD_MAX
+  return{
+    name,c,x,y:floorY-c.h*U,vx:0,vy:0,w:c.w*U,h:c.h*U,
+    face,damage:0,ground:true,attack:0,attackType:null,hitTargets:{},
+    basicCool:0,specialCool:0,grabCool:0,invul:0,stun:0,shield:false,
+    buff:0,movementLock:0,fallSlow:0,jumpsRemaining:2,jumpHeld:false,
+    controls:controls[i],ko:0,shiny:0,shieldEnergy:SHIELD_MAX,
+    isCPU:playerModes[i]==='cpu',cpuLevel:cpuLevels[i],
+    ai:{think:0,intent:{},lastDecision:0}
   };
 }
 
-function initMatch() {
-  stop();
-  activeGrab=null;
-
-  players=[
-    makePlayer(chosen[0],250,1,0),
-    makePlayer(chosen[1],670,-1,1)
-  ];
-
-  particles=[];
-  keys={};
-  activeGame=true;
-
-  document.querySelector('#matchup').textContent=chosen[0]+' vs '+chosen[1];
-  document.querySelector('#hud1').textContent='PLAYER 1 · '+chosen[0];
-  document.querySelector('#hud2').textContent='PLAYER 2 · '+chosen[1];
+function initMatch(){
+  stop();activeGrab=null;frameCount=0;
+  players=[makePlayer(chosen[0],250,1,0),makePlayer(chosen[1],670,-1,1)];
+  particles=[];keys={};activeGame=true;
+  document.querySelector('#matchup').textContent=
+    `${chosen[0]} (${playerModes[0]==='cpu'?'CPU L'+cpuLevels[0]:'P1'}) vs ${chosen[1]} (${playerModes[1]==='cpu'?'CPU L'+cpuLevels[1]:'P2'})`;
+  document.querySelector('#hud1').textContent=`${playerModes[0]==='cpu'?'CPU':'PLAYER 1'} · ${chosen[0]}`;
+  document.querySelector('#hud2').textContent=`${playerModes[1]==='cpu'?'CPU':'PLAYER 2'} · ${chosen[1]}`;
   document.querySelector('#status').textContent='FIGHT!';
+  draw();raf=requestAnimationFrame(loop);
+}
+function stop(){activeGame=false;cancelAnimationFrame(raf)}
+function rect(x,y,w,h){return{x,y,w,h}}
+function overlaps(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
 
-  draw();
-  raf=requestAnimationFrame(loop);
+/* CPU AI */
+function setAIKeys(p,intent){
+  const k=p.controls;
+  const names=['left','right','jump','down','basic','special','shield','grab'];
+  names.forEach(n=>{keys[k[n]]=!!intent[n]});
 }
 
-function stop() {
-  activeGame=false;
-  cancelAnimationFrame(raf);
-}
+function runCPU(p,op,index){
+  if(!p.isCPU)return;
+  const k=p.controls;
+  const level=p.cpuLevel;
+  const ai=p.ai;
+  const intent=ai.intent;
 
-function rect(x,y,w,h) {return {x,y,w,h}}
+  // CPU decisions are refreshed more frequently at higher levels.
+  const thinkInterval=Math.max(1,11-level);
+  ai.think--;
 
-function overlaps(a,b) {
-  return a.x<b.x+b.w &&
-    a.x+a.w>b.x &&
-    a.y<b.y+b.h &&
-    a.y+a.h>b.y;
-}
+  if(ai.think<=0){
+    ai.think=thinkInterval;
+    const dx=(op.x+op.w/2)-(p.x+p.w/2);
+    const dy=(op.y+op.h/2)-(p.y+p.h/2);
+    const distance=Math.abs(dx);
+    const direction=Math.sign(dx)||p.face;
+    const verticalDifference=op.y-p.y;
+    const close=distance<(p.w+op.w)/2+38;
+    const aligned=Math.abs(verticalDifference)<p.h*.8+op.h*.35;
+    const opponentThreat=op.attack>0&&distance<150&&
+      Math.sign((p.x+p.w/2)-(op.x+op.w/2))===op.face;
+    const nearEdge=p.x<12||p.x+p.w>W-12;
+    const belowOpponent=op.y+op.h<p.y+10;
+    const aboveOpponent=op.y+op.h<p.y+p.h-25;
 
-/* PARTICLES */
+    // Small, difficulty-dependent hesitation and imperfect decisions.
+    const errorChance=(9-level)*.035;
+    const makeMistake=Math.random()<errorChance;
 
-function createParticles(x,y,color,count=12,power=8) {
-  for(let i=0;i<count;i++) {
-    const angle=Math.random()*Math.PI*2;
-    const speed=Math.random()*power;
+    let next={
+      left:false,right:false,jump:false,down:false,
+      basic:false,special:false,shield:false,grab:false
+    };
 
-    particles.push({
-      x,y,
-      vx:Math.cos(angle)*speed,
-      vy:Math.sin(angle)*speed,
-      life:24+Math.random()*12,
-      maxLife:36,
-      size:3+Math.random()*4,
-      color
-    });
+    // Approach the opponent, but avoid blindly running off the stage.
+    if(distance>p.w+op.w+28){
+      if(direction>0)next.right=true;else next.left=true;
+    }else if(distance>p.w+op.w+8){
+      if(level>=4){
+        if(direction>0)next.right=true;else next.left=true;
+      }
+    }
+
+    // Face the opponent.
+    if(dx!==0)p.face=direction;
+
+    // Jump to reach elevated opponents or escape a bad position.
+    const jumpChance=.08+level*.055;
+    if(p.ground&&(
+      (aboveOpponent&&Math.random()<jumpChance)||
+      (nearEdge&&level>=3)||
+      (opponentThreat&&level>=6&&Math.random()<.55)
+    ))next.jump=true;
+
+    // Fast fall to return to the stage or pursue an opponent below.
+    if(!p.ground&&p.vy>0&&level>=4){
+      if((belowOpponent||p.y>H*.55)&&Math.random()<.35+level*.055)next.down=true;
+    }
+
+    // Attack when close and reasonably aligned.
+    const attackRange=p.c.name==='Fluff'?155:p.c.name==='Heavy'?125:115;
+    if(distance<attackRange&&aligned&&p.basicCool<=0){
+      if(Math.random()<.35+level*.075)next.basic=true;
+    }
+
+    // Specials are used more thoughtfully at higher levels.
+    if(p.specialCool<=0&&distance<(p.c.name==='Brawler'?115:175)){
+      const specialChance=.12+level*.085;
+      if(Math.random()<specialChance)next.special=true;
+    }
+
+    // Grabs are attempted at close range, more often at higher levels.
+    if(close&&aligned&&p.grabCool<=0&&level>=3){
+      if(Math.random()<.04+level*.035)next.grab=true;
+    }
+
+    // Shield when an incoming attack is likely to connect.
+    if(level>=4&&opponentThreat&&p.ground&&p.shieldEnergy>0){
+      if(Math.random()<.25+level*.075)next.shield=true;
+    }
+
+    // Higher levels try to avoid attacks instead of only shielding.
+    if(level>=7&&opponentThreat&&p.ground&&Math.random()<.25+level*.055){
+      next.jump=true;
+      next.left=direction>0;
+      next.right=direction<0;
+    }
+
+    // Better recovery: steer toward the stage when airborne near an edge.
+    if(level>=5&&!p.ground&&(p.x<80||p.x+p.w>W-80)){
+      if(p.x<80)next.right=true;
+      if(p.x+p.w>W-80)next.left=true;
+      if(p.vy>0&&level>=7)next.down=false;
+    }
+
+    // Avoid unnecessary attacks when the opponent is invulnerable.
+    if(op.invul>0&&level>=5){
+      next.basic=false;
+      if(level>=7)next.grab=false;
+    }
+
+    // Occasional mistakes keep lower levels from feeling robotic.
+    if(makeMistake){
+      if(Math.random()<.5){next.basic=false;next.special=false}
+      else{next.left=false;next.right=false}
+    }
+
+    // Level 9 makes more deliberate decisions and uses openings.
+    if(level===9&&close&&aligned&&op.invul<=0){
+      if(p.c.name==='Heavy'&&p.buff>0&&p.basicCool<=0)next.basic=true;
+      if(p.c.name==='Brawler'&&p.specialCool<=0&&distance<100)next.special=true;
+    }
+
+    ai.intent=next;
+    ai.lastDecision=frameCount;
+  }
+
+  // Keep the current intent active between decision updates.
+  setAIKeys(p,ai.intent);
+
+  // During a grab, actively choose a throw direction.
+  if(activeGrab&&activeGrab.attacker===p){
+    const g=activeGrab;
+    const dx=(op.x+op.w/2)-(p.x+p.w/2);
+    if(level>=5){
+      g.dx=dx===0?p.face:Math.sign(dx);
+      g.dy=level>=8&&op.y<p.y?-0.7:0;
+    }else{
+      g.dx=p.face;g.dy=0;
+    }
   }
 }
 
-function shinyEffect(p) {
+/* PARTICLES */
+function createParticles(x,y,color,count=12,power=8){
+  for(let i=0;i<count;i++){
+    const angle=Math.random()*Math.PI*2,speed=Math.random()*power;
+    particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:24+Math.random()*12,maxLife:36,size:3+Math.random()*4,color});
+  }
+}
+function shinyEffect(p){
   createParticles(p.x+p.w/2,p.y+p.h/2,'#fff2a6',45,11);
   createParticles(p.x+p.w/2,p.y+p.h/2,'#ffd166',30,7);
   p.shiny=55;
 }
 
 /* ATTACK ACTIVATION */
-
-function hit(p,type) {
-  if(p.stun>0 || p.movementLock>0) {
-    if(type!=='special') return;
+function hit(p,type){
+  if(p.stun>0||p.movementLock>0){if(type!=='special')return}
+  if(type==='basic'){
+    if(p.basicCool>0)return;
+    p.attack=14;p.attackType='basic';p.hitTargets={};
+    p.basicCool=p.c.name==='Heavy'?90:30;return;
   }
-
-  if(type==='basic') {
-    if(p.basicCool>0) return;
-
-    p.attack=14;
-    p.attackType='basic';
-    p.hitTargets={};
-    p.basicCool=p.c.name==='Heavy'?90:30;
-    return;
+  if(type==='grab'){
+    if(p.grabCool>0||activeGrab)return;
+    p.attack=14;p.attackType='grab';p.hitTargets={};p.grabCool=45;return;
   }
-
-  if(type==='grab') {
-    if(p.grabCool>0 || activeGrab) return;
-
-    p.attack=14;
-    p.attackType='grab';
-    p.hitTargets={};
-    p.grabCool=45;
-    return;
-  }
-
-  if(type==='special') {
-    if(p.specialCool>0) return;
-
+  if(type==='special'){
+    if(p.specialCool>0)return;
     p.specialCool=p.c.name==='Heavy'?600:65;
-
-    if(p.c.name==='Heavy') {
-      p.buff=180;
-      p.basicCool=0;
-      p.attack=0;
-      p.attackType=null;
-      shinyEffect(p);
-      document.querySelector('#status').textContent='HEAVY POWER-UP!';
-      return;
+    if(p.c.name==='Heavy'){
+      p.buff=180;p.basicCool=0;p.attack=0;p.attackType=null;
+      shinyEffect(p);document.querySelector('#status').textContent='HEAVY POWER-UP!';return;
     }
-
-    p.attack=22;
-    p.attackType='special';
-    p.hitTargets={};
-
-    if(p.c.name==='Brawler') {
-      p.movementLock=60;
-      p.vx=0;
-    }
-
-    if(p.c.name==='Fluff') p.fallSlow=120;
+    p.attack=22;p.attackType='special';p.hitTargets={};
+    if(p.c.name==='Brawler'){p.movementLock=60;p.vx=0}
+    if(p.c.name==='Fluff')p.fallSlow=120;
   }
 }
 
 /* HITBOXES */
-
-function basicRect(p) {
-  const [w,h,where,cx,cy]=p.c.basicBox;
-  const bw=w*U;
-  const bh=Math.max(3,h*U);
-
+function basicRect(p){
+  const[w,h,where,cx,cy]=p.c.basicBox;
+  const bw=w*U,bh=Math.max(3,h*U);
   let centerX,centerY;
-
-  if(p.c.name==='Heavy') {
-    centerX=p.x+cx*U;
-    centerY=p.y+p.h-cy*U;
-  } else {
-    centerX=p.x+p.w/2+p.face*(bw/2+p.w/2);
-    centerY=p.y+p.h-cy*U;
-  }
-
+  if(p.c.name==='Heavy'){centerX=p.x+cx*U;centerY=p.y+p.h-cy*U}
+  else{centerX=p.x+p.w/2+p.face*(bw/2+p.w/2);centerY=p.y+p.h-cy*U}
   return rect(centerX-bw/2,centerY-bh/2,bw,bh);
 }
-
-function grabRect(p) {
-  // Grab range: half the character's base length.
-  // Grab width: one quarter of its base height.
-  // Centre: two-thirds of the character's height.
-  const range=.5*p.w;
-  const thickness=.25*p.h;
+function grabRect(p){
+  const range=.5*p.w,thickness=.25*p.h;
   const centerY=p.y+p.h-(2/3)*p.h;
   const x=p.face>0?p.x+p.w:p.x-range;
-
   return rect(x,centerY-thickness/2,range,thickness);
 }
-
-function attackShape(p) {
-  if(p.attackType==='basic') return basicRect(p);
-  if(p.attackType==='grab') return grabRect(p);
-
-  if(p.attackType==='special') {
-    if(p.c.name==='Brawler') {
-      return {
-        circle:true,
-        x:p.x+p.w/2,
-        y:p.y+p.h/2,
-        r:1.5*U
-      };
-    }
-
-    if(p.c.name==='Fluff') {
-      return {
-        circle:true,
-        x:p.x+.325*U,
-        y:p.y+p.h-1.75*U,
-        r:1*U
-      };
-    }
+function attackShape(p){
+  if(p.attackType==='basic')return basicRect(p);
+  if(p.attackType==='grab')return grabRect(p);
+  if(p.attackType==='special'){
+    if(p.c.name==='Brawler')return{circle:true,x:p.x+p.w/2,y:p.y+p.h/2,r:1.5*U};
+    if(p.c.name==='Fluff')return{circle:true,x:p.x+.325*U,y:p.y+p.h-1.75*U,r:1*U};
   }
-
   return null;
 }
 
 /* DAMAGE AND KNOCKBACK */
-
-function damageHit(att,def,type) {
-  if(def.invul>0 || def.shield) return;
-
+function damageHit(att,def,type){
+  if(def.invul>0||def.shield)return;
   const attacker=att.c.name;
   let damage=0;
-
-  if(type==='basic') {
-    if(attacker==='Brawler') damage=7;
-    if(attacker==='Fluff') damage=8;
-    if(attacker==='Heavy') damage=10;
+  if(type==='basic'){
+    if(attacker==='Brawler')damage=7;
+    if(attacker==='Fluff')damage=8;
+    if(attacker==='Heavy')damage=10;
   }
-
-  if(type==='grab') damage=10;
-
-  if(type==='special') {
-    if(attacker==='Brawler') damage=25;
-    if(attacker==='Fluff') damage=20;
+  if(type==='grab')damage=10;
+  if(type==='special'){
+    if(attacker==='Brawler')damage=25;
+    if(attacker==='Fluff')damage=20;
   }
-
-  if(damage<=0) return;
-
-  if(att.buff>0) damage*=1.4;
-
+  if(damage<=0)return;
+  if(att.buff>0)damage*=1.4;
   def.damage+=damage;
-
   const knockbackScale=1+def.damage/100;
-  const away=Math.sign(
-    (def.x+def.w/2)-(att.x+att.w/2)
-  )||att.face;
+  const away=Math.sign((def.x+def.w/2)-(att.x+att.w/2))||att.face;
 
-  if(attacker==='Fluff' && type==='basic') {
+  if(attacker==='Fluff'&&type==='basic'){
     const force=3*knockbackScale;
-
-    if(!def.ground) {
-      def.vx=0;
-      def.vy=force;
-    } else {
-      def.vx=away*.979796*force;
-      def.vy=-.2*force;
-    }
-  }
-  else if(attacker==='Fluff' && type==='special') {
-    // Fluff special knockback stat: 100.
+    if(!def.ground){def.vx=0;def.vy=force}
+    else{def.vx=away*.979796*force;def.vy=-.2*force}
+  }else if(attacker==='Fluff'&&type==='special'){
     const force=10*knockbackScale;
-    def.vx=away*1.5*knockbackScale;
-    def.vy=-force;
-  }
-  else if(attacker==='Brawler' && type==='basic') {
+    def.vx=away*1.5*knockbackScale;def.vy=-force;
+  }else if(attacker==='Brawler'&&type==='basic'){
     const force=5*knockbackScale;
-    def.vx=att.face*force;
-    def.vy=-2.5*knockbackScale;
-  }
-  else if(attacker==='Brawler' && type==='special') {
+    def.vx=att.face*force;def.vy=-2.5*knockbackScale;
+  }else if(attacker==='Brawler'&&type==='special'){
     const force=(5+def.damage*.105)*(5/def.c.weight);
     def.vx=att.face*force*1.2*knockbackScale;
-    def.vy=-Math.min(18,5+def.damage*.055)*
-      (5/def.c.weight)*1.2*knockbackScale;
-  }
-  else {
+    def.vy=-Math.min(18,5+def.damage*.055)*(5/def.c.weight)*1.2*knockbackScale;
+  }else{
     const mult=type==='special'?1.2:type==='grab'?1.1:1;
-    const force=(5+def.damage*.105)*
-      (5/def.c.weight)*mult*knockbackScale;
-
+    const force=(5+def.damage*.105)*(5/def.c.weight)*mult*knockbackScale;
     def.vx=att.face*force;
-    def.vy=-Math.min(18,5+def.damage*.055)*
-      (5/def.c.weight)*mult*knockbackScale;
+    def.vy=-Math.min(18,5+def.damage*.055)*(5/def.c.weight)*mult*knockbackScale;
   }
-
-  // Fluff takes 45% less knockback from all attacks.
-  if(def.c.name==='Fluff') {
-    def.vx*=.55;
-    def.vy*=.55;
-  }
-
-  def.stun=12;
-  def.invul=16;
-
-  createParticles(
-    def.x+def.w/2,
-    def.y+def.h/2,
-    def.c.color,12,8
-  );
+  if(def.c.name==='Fluff'){def.vx*=.55;def.vy*=.55}
+  def.stun=12;def.invul=16;
+  createParticles(def.x+def.w/2,def.y+def.h/2,def.c.color,12,8);
 }
 
 /* GRAB SYSTEM */
-
-function startGrab(attacker,victim) {
-  if(activeGrab || victim.invul>0 || victim.shield) return;
-
-  activeGrab={
-    attacker,
-    victim,
-    timer:60,
-    dx:attacker.face,
-    dy:0
-  };
-
-  attacker.attack=0;
-  attacker.attackType=null;
-  attacker.vx=0;
-  attacker.vy=0;
-
-  victim.vx=0;
-  victim.vy=0;
-  victim.stun=0;
-  victim.invul=0;
-
+function startGrab(attacker,victim){
+  if(activeGrab||victim.invul>0||victim.shield)return;
+  activeGrab={attacker,victim,timer:60,dx:attacker.face,dy:0};
+  attacker.attack=0;attacker.attackType=null;attacker.vx=0;attacker.vy=0;
+  victim.vx=0;victim.vy=0;victim.stun=0;victim.invul=0;
   document.querySelector('#status').textContent=
-    (attacker===players[0]?'PLAYER 1':'PLAYER 2')+
-    ' GRAB! CHOOSE A THROW DIRECTION!';
+    (attacker===players[0]?'PLAYER 1':'PLAYER 2')+' GRAB! CHOOSE A THROW DIRECTION!';
 }
-
-function updateGrab() {
-  if(!activeGrab) return;
-
-  const g=activeGrab;
-  const a=g.attacker;
-  const v=g.victim;
-  const k=a.controls;
-
+function updateGrab(){
+  if(!activeGrab)return;
+  const g=activeGrab,a=g.attacker,v=g.victim,k=a.controls;
   let dx=0,dy=0;
-
-  if(keys[k.left]) dx--;
-  if(keys[k.right]) dx++;
-  if(keys[k.jump]) dy--;
-  if(keys[k.down]) dy++;
-
-  if(dx!==0 || dy!==0) {
-    const length=Math.hypot(dx,dy);
-    g.dx=dx/length;
-    g.dy=dy/length;
-  }
-
-  a.vx=0;
-  a.vy=0;
-  v.vx=0;
-  v.vy=0;
-
+  if(keys[k.left])dx--;
+  if(keys[k.right])dx++;
+  if(keys[k.jump])dy--;
+  if(keys[k.down])dy++;
+  if(dx!==0||dy!==0){const length=Math.hypot(dx,dy);g.dx=dx/length;g.dy=dy/length}
+  a.vx=0;a.vy=0;v.vx=0;v.vy=0;
   g.timer--;
-
-  if(g.timer<=0) {
-    // Grab deals 10% damage before throw knockback is calculated.
+  if(g.timer<=0){
     v.damage+=10;
-
-    // Throw knockback stat = 60, scaled by victim percentage.
-    const percentageScale=1+v.damage/100;
-    const force=6*percentageScale;
-
-    let vx=g.dx*force;
-    let vy=g.dy*force;
-
-    if(Math.abs(g.dx)+Math.abs(g.dy)===0) {
-      vx=a.face*force;
-    }
-
-    // Fluff receives 45% less knockback.
-    if(v.c.name==='Fluff') {
-      vx*=.55;
-      vy*=.55;
-    }
-
-    v.vx=vx;
-    v.vy=vy;
-    v.ground=false;
-    v.jumpsRemaining=0;
-    v.invul=16;
-    v.stun=12;
-
-    createParticles(
-      v.x+v.w/2,
-      v.y+v.h/2,
-      '#fff2a6',24,9
-    );
-
+    const force=6*(1+v.damage/100);
+    let vx=g.dx*force,vy=g.dy*force;
+    if(Math.abs(g.dx)+Math.abs(g.dy)===0)vx=a.face*force;
+    if(v.c.name==='Fluff'){vx*=.55;vy*=.55}
+    v.vx=vx;v.vy=vy;v.ground=false;v.jumpsRemaining=0;v.invul=16;v.stun=12;
+    createParticles(v.x+v.w/2,v.y+v.h/2,'#fff2a6',24,9);
     document.querySelector('#status').textContent='THROW!';
     activeGrab=null;
   }
 }
 
 /* ATTACK COLLISION */
-
-function checkAttack(p,op) {
-  if(p.attack<=0 || p.hitTargets[op.name]) return;
-  if(p.attackType==='special' && p.c.name==='Heavy') return;
-
-  if(p.attackType==='special' && p.attack===21) {
+function checkAttack(p,op){
+  if(p.attack<=0||p.hitTargets[op.name])return;
+  if(p.attackType==='special'&&p.c.name==='Heavy')return;
+  if(p.attackType==='special'&&p.attack===21){
     const s=attackShape(p);
-
-    if(s && s.circle) {
-      const dx=op.x+op.w/2-s.x;
-      const dy=op.y+op.h/2-s.y;
-
-      if(Math.hypot(dx,dy)<s.r+Math.min(op.w,op.h)/2) {
-        p.hitTargets[op.name]=true;
-        damageHit(p,op,'special');
+    if(s&&s.circle){
+      const dx=op.x+op.w/2-s.x,dy=op.y+op.h/2-s.y;
+      if(Math.hypot(dx,dy)<s.r+Math.min(op.w,op.h)/2){
+        p.hitTargets[op.name]=true;damageHit(p,op,'special');
       }
     }
     return;
   }
-
-  if(p.attack===8) {
+  if(p.attack===8){
     const b=attackShape(p);
-
-    if(b && overlaps(b,rect(op.x,op.y,op.w,op.h))) {
+    if(b&&overlaps(b,rect(op.x,op.y,op.w,op.h))){
       p.hitTargets[op.name]=true;
-
-      if(p.attackType==='grab') {
-        startGrab(p,op);
-      } else {
-        damageHit(p,op,p.attackType);
-      }
+      if(p.attackType==='grab')startGrab(p,op);
+      else damageHit(p,op,p.attackType);
     }
   }
 }
 
 /* PLAYER UPDATE */
-
-function update(p,op) {
-  if(activeGrab &&
-    (activeGrab.attacker===p || activeGrab.victim===p)) return;
-
-  const k=p.controls;
-  const c=p.c;
-
+function update(p,op){
+  if(activeGrab&&(activeGrab.attacker===p||activeGrab.victim===p))return;
+  const k=p.controls,c=p.c;
   p.basicCool=Math.max(0,p.basicCool-1);
   p.specialCool=Math.max(0,p.specialCool-1);
   p.grabCool=Math.max(0,p.grabCool-1);
-
   p.attack=Math.max(0,p.attack-1);
   p.invul=Math.max(0,p.invul-1);
   p.stun=Math.max(0,p.stun-1);
@@ -804,371 +607,179 @@ function update(p,op) {
   p.fallSlow=Math.max(0,p.fallSlow-1);
   p.shiny=Math.max(0,p.shiny-1);
 
-  // Shield drains while held, recharges when released.
-  const shieldRequested=!!keys[k.shield] &&
-    p.ground &&
-    p.stun===0 &&
-    p.movementLock===0 &&
-    p.shieldEnergy>0;
+  const shieldRequested=!!keys[k.shield]&&p.ground&&p.stun===0&&p.movementLock===0&&p.shieldEnergy>0;
+  if(shieldRequested){p.shield=true;p.shieldEnergy=Math.max(0,p.shieldEnergy-1)}
+  else{p.shield=false;p.shieldEnergy=Math.min(SHIELD_MAX,p.shieldEnergy+SHIELD_RECHARGE)}
+  const shieldMultiplier=p.shield?0.45:1;
 
-  if(shieldRequested) {
-    p.shield=true;
-    p.shieldEnergy=Math.max(0,p.shieldEnergy-1);
-  } else {
-    p.shield=false;
-    p.shieldEnergy=Math.min(
-      SHIELD_MAX,
-      p.shieldEnergy+SHIELD_RECHARGE
-    );
-  }
-
-  const shieldMultiplier=p.shield?.45:1;
-
-  if(p.stun===0) {
+  if(p.stun===0){
     const buffMultiplier=p.buff>0?1.4:1;
     const movementLocked=p.movementLock>0;
     const speed=(c.speed/50)*4.4*buffMultiplier*shieldMultiplier;
-
-    if(!movementLocked) {
-      if(keys[k.left]) {
-        p.vx-=.75;
-        p.face=-1;
-      }
-
-      if(keys[k.right]) {
-        p.vx+=.75;
-        p.face=1;
-      }
-
+    if(!movementLocked){
+      if(keys[k.left]){p.vx-=.75;p.face=-1}
+      if(keys[k.right]){p.vx+=.75;p.face=1}
       p.vx=Math.max(-speed,Math.min(speed,p.vx));
+      if(!keys[k.left]&&!keys[k.right])p.vx*=.78;
+    }else p.vx=0;
 
-      if(!keys[k.left] && !keys[k.right]) {
-        p.vx*=.78;
-      }
-    } else {
-      p.vx=0;
-    }
-
-    // Jump height is adjusted by changing the launch velocity
-    // to produce the requested difference in peak height.
     const jumpPressed=!!keys[k.jump];
-
-    if(jumpPressed && !p.jumpHeld) {
-      if(p.jumpsRemaining>0 && !p.shield && !movementLocked) {
+    if(jumpPressed&&!p.jumpHeld){
+      if(p.jumpsRemaining>0&&!p.shield&&!movementLocked){
         const normalJumpHeight=(12*12)/(2*GRAVITY);
         const adjustedHeight=Math.max(1,normalJumpHeight+c.jumpChange);
-        const jumpPower=Math.sqrt(2*GRAVITY*adjustedHeight);
-
-        p.vy=-jumpPower;
-        p.ground=false;
-        p.jumpsRemaining--;
+        p.vy=-Math.sqrt(2*GRAVITY*adjustedHeight);
+        p.ground=false;p.jumpsRemaining--;
       }
     }
-
     p.jumpHeld=jumpPressed;
+    if(keys[k.basic]&&!movementLocked)hit(p,'basic');
+    if(keys[k.special])hit(p,'special');
+    if(keys[k.grab]&&!movementLocked)hit(p,'grab');
+  }else p.jumpHeld=!!keys[k.jump];
 
-    if(keys[k.basic] && !movementLocked) hit(p,'basic');
-    if(keys[k.special]) hit(p,'special');
-    if(keys[k.grab] && !movementLocked) hit(p,'grab');
-  } else {
-    p.jumpHeld=!!keys[k.jump];
-  }
-
-  p.x+=p.vx;
-  p.y+=p.vy;
-
+  p.x+=p.vx;p.y+=p.vy;
   let maxFallSpeed=c.fallSpeed/10;
-
-  // Fluff's special slows falling to 10 for two seconds.
-  if(p.fallSlow>0) maxFallSpeed=1;
-
-  // Holding down while airborne doubles maximum falling speed.
-  if(!p.ground && keys[k.down]) {
-    maxFallSpeed*=2;
-  }
-
+  if(p.fallSlow>0)maxFallSpeed=1;
+  if(!p.ground&&keys[k.down])maxFallSpeed*=2;
   p.vy=Math.min(maxFallSpeed,p.vy+GRAVITY);
-
   p.ground=false;
 
-  for(const s of platforms) {
-    if(
-      p.vy>=0 &&
-      p.x+p.w>s.x &&
-      p.x<s.x+s.w &&
-      p.y+p.h>=s.y &&
-      p.y+p.h-p.vy<=s.y+5
-    ) {
-      p.y=s.y-p.h;
-      p.vy=0;
-      p.ground=true;
-      p.jumpsRemaining=2;
+  for(const s of platforms){
+    if(p.vy>=0&&p.x+p.w>s.x&&p.x<s.x+s.w&&p.y+p.h>=s.y&&p.y+p.h-p.vy<=s.y+5){
+      p.y=s.y-p.h;p.vy=0;p.ground=true;p.jumpsRemaining=2;
     }
   }
 
-  // Side boundaries allow 3 units beyond the visible arena.
-  p.x=Math.max(-96,Math.min(W+96-p.w,p.x));
-
+  // Blast zones are 96 pixels beyond the screen edges.
   checkAttack(p,op);
+  const outsideLeft=p.x+p.w<-96;
+  const outsideRight=p.x>W+96;
+  const outsideTop=p.y+p.h<-96;
+  const outsideBottom=p.y>H+96;
 
-  // Blast zones: 96 pixels beyond all four screen edges.
-  const outsideLeft=p.x+p.w < -96;
-  const outsideRight=p.x > W+96;
-  const outsideTop=p.y+p.h < -96;
-  const outsideBottom=p.y > H+96;
-
-  if(outsideLeft || outsideRight || outsideTop || outsideBottom) {
+  if(outsideLeft||outsideRight||outsideTop||outsideBottom){
     p.ko++;
-
     document.querySelector('#status').textContent=
       (p===players[0]?'PLAYER 2':'PLAYER 1')+' SCORES A KO!';
-
-    p.x=p===players[0]?250:670;
-    p.y=150;
-    p.vx=0;
-    p.vy=0;
-    p.damage=0;
-    p.invul=100;
-    p.jumpsRemaining=2;
-    p.ground=false;
-    p.attack=0;
-    p.buff=0;
-    p.movementLock=0;
-    p.fallSlow=0;
-
-    // KO completely restores the player's shield.
-    p.shieldEnergy=SHIELD_MAX;
-    p.shield=false;
+    p.x=p===players[0]?250:670;p.y=150;p.vx=0;p.vy=0;p.damage=0;
+    p.invul=100;p.jumpsRemaining=2;p.ground=false;p.attack=0;
+    p.buff=0;p.movementLock=0;p.fallSlow=0;
+    p.shieldEnergy=SHIELD_MAX;p.shield=false;
   }
 }
 
 /* DRAWING */
-
-function draw() {
+function draw(){
   ctx.clearRect(0,0,W,H);
-
   const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#101a31');
-  g.addColorStop(1,'#182b43');
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,W,H);
-
+  g.addColorStop(0,'#101a31');g.addColorStop(1,'#182b43');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(111,173,220,.10)';
-
-  for(let x=0;x<W;x+=40) {
-    ctx.beginPath();
-    ctx.moveTo(x,0);
-    ctx.lineTo(x,H);
-    ctx.stroke();
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(const s of platforms){
+    ctx.fillStyle='#263b56';ctx.fillRect(s.x,s.y,s.w,s.h);
+    ctx.fillStyle='#78a9d1';ctx.fillRect(s.x,s.y,s.w,4);
   }
 
-  // Platforms.
-  for(const s of platforms) {
-    ctx.fillStyle='#263b56';
-    ctx.fillRect(s.x,s.y,s.w,s.h);
-    ctx.fillStyle='#78a9d1';
-    ctx.fillRect(s.x,s.y,s.w,4);
-  }
-
-  // Players.
-  for(const p of players) {
+  for(let i=0;i<players.length;i++){
+    const p=players[i];
     ctx.save();
+    ctx.globalAlpha=p.invul>0&&Math.floor(p.invul/5)%2?.35:1;
 
-    ctx.globalAlpha=
-      p.invul>0 && Math.floor(p.invul/5)%2?.35:1;
-
-    // Heavy shiny effect.
-    if(p.shiny>0) {
+    if(p.shiny>0){
       const pulse=.5+.5*Math.sin(p.shiny*.7);
-
-      ctx.save();
-      ctx.shadowColor='#fff2a6';
-      ctx.shadowBlur=25+20*pulse;
+      ctx.save();ctx.shadowColor='#fff2a6';ctx.shadowBlur=25+20*pulse;
       ctx.strokeStyle=`rgba(255,235,150,${.5+.5*pulse})`;
-      ctx.lineWidth=5;
-      ctx.strokeRect(p.x-9,p.y-9,p.w+18,p.h+18);
-      ctx.restore();
+      ctx.lineWidth=5;ctx.strokeRect(p.x-9,p.y-9,p.w+18,p.h+18);ctx.restore();
     }
 
-    ctx.fillStyle=p.c.color;
-    ctx.fillRect(p.x,p.y,p.w,p.h);
-
+    ctx.fillStyle=p.c.color;ctx.fillRect(p.x,p.y,p.w,p.h);
     ctx.fillStyle='white';
-    ctx.fillRect(
-      p.x+(p.face>0?p.w*.68:p.w*.18),
-      p.y+p.h*.25,
-      6,6
-    );
+    ctx.fillRect(p.x+(p.face>0?p.w*.68:p.w*.18),p.y+p.h*.25,6,6);
 
-    // Shield visual size shrinks with remaining energy.
-    if(p.shield && p.shieldEnergy>0) {
-      const ratio=p.shieldEnergy/SHIELD_MAX;
-      const scale=.35+.65*ratio;
+    if(p.isCPU){
+      ctx.fillStyle='#fff2a6';ctx.font='bold 10px Arial';
+      ctx.textAlign='center';ctx.fillText('CPU L'+p.cpuLevel,p.x+p.w/2,p.y-9);
+    }
 
-      ctx.strokeStyle='#b4f1ff';
-      ctx.lineWidth=5;
-      ctx.shadowColor='#b4f1ff';
-      ctx.shadowBlur=10;
-
-      ctx.beginPath();
-      ctx.ellipse(
-        p.x+p.w/2,
-        p.y+p.h/2,
-        p.w*.9*scale,
-        p.h*.75*scale,
-        0,0,Math.PI*2
-      );
-      ctx.stroke();
+    if(p.shield&&p.shieldEnergy>0){
+      const ratio=p.shieldEnergy/SHIELD_MAX,scale=.35+.65*ratio;
+      ctx.strokeStyle='#b4f1ff';ctx.lineWidth=5;ctx.shadowColor='#b4f1ff';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.ellipse(p.x+p.w/2,p.y+p.h/2,p.w*.9*scale,p.h*.75*scale,0,0,Math.PI*2);ctx.stroke();
       ctx.shadowBlur=0;
     }
 
-    // Attack hitboxes.
-    if(p.attack>0) {
+    if(p.attack>0){
       const s=attackShape(p);
-
-      if(s) {
-        ctx.fillStyle=
-          p.attackType==='special'
-          ? 'rgba(255,220,100,.32)'
-          : 'rgba(255,255,255,.28)';
-
-        if(s.circle) {
-          ctx.beginPath();
-          ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-          ctx.fill();
-        } else {
-          ctx.fillRect(s.x,s.y,s.w,s.h);
-        }
+      if(s){
+        ctx.fillStyle=p.attackType==='special'?'rgba(255,220,100,.32)':'rgba(255,255,255,.28)';
+        if(s.circle){ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
+        else ctx.fillRect(s.x,s.y,s.w,s.h);
       }
     }
-
-    // Heavy buff.
-    if(p.buff>0) {
-      ctx.strokeStyle='#ffd166';
-      ctx.lineWidth=3;
-      ctx.shadowColor='#ffd166';
-      ctx.shadowBlur=12;
+    if(p.buff>0){
+      ctx.strokeStyle='#ffd166';ctx.lineWidth=3;ctx.shadowColor='#ffd166';ctx.shadowBlur=12;
       ctx.strokeRect(p.x-5,p.y-5,p.w+10,p.h+10);
     }
-
-    // Brawler movement lock indicator.
-    if(p.movementLock>0 && p.c.name==='Brawler') {
-      ctx.strokeStyle='#b4f1ff';
-      ctx.lineWidth=2;
-      ctx.strokeRect(p.x-3,p.y-3,p.w+6,p.h+6);
+    if(p.movementLock>0&&p.c.name==='Brawler'){
+      ctx.strokeStyle='#b4f1ff';ctx.lineWidth=2;ctx.strokeRect(p.x-3,p.y-3,p.w+6,p.h+6);
     }
-
     ctx.restore();
   }
 
-  // Grab aiming indicator.
-  if(activeGrab) {
-    const g=activeGrab;
-    const a=g.attacker;
-    const cx=a.x+a.w/2;
-    const cy=a.y+a.h/2;
-    const length=65;
-
-    ctx.save();
-    ctx.strokeStyle='#fff2a6';
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+g.dx*length,cy+g.dy*length);
-    ctx.stroke();
-
-    ctx.fillStyle='#fff2a6';
-    ctx.beginPath();
-    ctx.arc(cx+g.dx*length,cy+g.dy*length,6,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle='white';
-    ctx.font='bold 16px Arial';
-    ctx.fillText(
-      'THROW: '+(g.timer/60).toFixed(1)+'s',
-      cx-45,cy-30
-    );
-    ctx.restore();
+  if(activeGrab){
+    const g=activeGrab,a=g.attacker,cx=a.x+a.w/2,cy=a.y+a.h/2,length=65;
+    ctx.save();ctx.strokeStyle='#fff2a6';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+g.dx*length,cy+g.dy*length);ctx.stroke();
+    ctx.fillStyle='#fff2a6';ctx.beginPath();ctx.arc(cx+g.dx*length,cy+g.dy*length,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='white';ctx.font='bold 16px Arial';
+    ctx.fillText('THROW: '+(g.timer/60).toFixed(1)+'s',cx-45,cy-30);ctx.restore();
   }
 
-  // Particles.
-  for(let i=particles.length-1;i>=0;i--) {
+  for(let i=particles.length-1;i>=0;i--){
     const q=particles[i];
-
-    q.x+=q.vx;
-    q.y+=q.vy;
-    q.vx*=.97;
-    q.vy*=.97;
-    q.life--;
-
+    q.x+=q.vx;q.y+=q.vy;q.vx*=.97;q.vy*=.97;q.life--;
     ctx.globalAlpha=Math.max(0,q.life/q.maxLife);
-    ctx.fillStyle=q.color;
-    ctx.shadowColor=q.color;
-    ctx.shadowBlur=8;
+    ctx.fillStyle=q.color;ctx.shadowColor=q.color;ctx.shadowBlur=8;
     ctx.fillRect(q.x,q.y,q.size,q.size);
-
-    if(q.life<=0) particles.splice(i,1);
+    if(q.life<=0)particles.splice(i,1);
   }
+  ctx.globalAlpha=1;ctx.shadowBlur=0;
 
-  ctx.globalAlpha=1;
-  ctx.shadowBlur=0;
-
-  document.querySelector('#dmg1').textContent=
-    Math.floor(players[0].damage)+'%';
-
-  document.querySelector('#dmg2').textContent=
-    Math.floor(players[1].damage)+'%';
-
-  document.querySelector('#shield1').textContent=
-    'Shield: '+Math.ceil(players[0].shieldEnergy/SHIELD_MAX*100)+'%';
-
-  document.querySelector('#shield2').textContent=
-    'Shield: '+Math.ceil(players[1].shieldEnergy/SHIELD_MAX*100)+'%';
+  document.querySelector('#dmg1').textContent=Math.floor(players[0].damage)+'%';
+  document.querySelector('#dmg2').textContent=Math.floor(players[1].damage)+'%';
+  document.querySelector('#shield1').textContent='Shield: '+Math.ceil(players[0].shieldEnergy/SHIELD_MAX*100)+'%';
+  document.querySelector('#shield2').textContent='Shield: '+Math.ceil(players[1].shieldEnergy/SHIELD_MAX*100)+'%';
 }
 
 /* GAME LOOP */
+function loop(){
+  if(!activeGame)return;
+  frameCount++;
 
-function loop() {
-  if(!activeGame) return;
+  // Generate CPU inputs before updating the fighters.
+  if(players[0].isCPU)runCPU(players[0],players[1],0);
+  if(players[1].isCPU)runCPU(players[1],players[0],1);
 
-  if(activeGrab) {
-    updateGrab();
-  } else {
-    update(players[0],players[1]);
-    update(players[1],players[0]);
-  }
+  if(activeGrab)updateGrab();
+  else{update(players[0],players[1]);update(players[1],players[0])}
 
   draw();
   raf=requestAnimationFrame(loop);
 }
-
-function restart() {
-  if(document.querySelector('#battle').style.display!=='none') {
-    initMatch();
-  }
-}
-
+function restart(){if(document.querySelector('#battle').style.display!=='none')initMatch()}
 document.querySelector('#restart').onclick=restart;
 
 /* FULLSCREEN */
-
 const fullscreenBtn=document.querySelector('#fullscreenBtn');
-
-async function toggleFullscreen() {
-  try {
-    if(!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
-  } catch(error) {
-    document.querySelector('#status').textContent=
-      'Fullscreen is not available in this browser.';
-  }
+async function toggleFullscreen(){
+  try{
+    if(!document.fullscreenElement)await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
+  }catch(error){document.querySelector('#status').textContent='Fullscreen is not available in this browser.'}
 }
-
 fullscreenBtn.addEventListener('click',toggleFullscreen);
-
 document.addEventListener('fullscreenchange',()=>{
   const enabled=!!document.fullscreenElement;
   fullscreenBtn.textContent=enabled?'⛶ Exit Fullscreen':'⛶ Fullscreen';
@@ -1176,34 +787,17 @@ document.addEventListener('fullscreenchange',()=>{
 });
 
 /* KEYBOARD INPUT */
-
 window.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
-  const battleVisible=
-    document.querySelector('#battle').style.display!=='none';
-
-  if(
-    battleVisible &&
-    ['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)
-  ) {
-    e.preventDefault();
-  }
-
+  const battleVisible=document.querySelector('#battle').style.display!=='none';
+  if(battleVisible&&['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   keys[k]=true;
 },{passive:false});
-
-window.addEventListener('keyup',e=>{
-  keys[e.key.toLowerCase()]=false;
-});
-
-window.addEventListener('blur',()=>{
-  keys={};
-});
-
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+window.addEventListener('blur',()=>{keys={}});
 document.addEventListener('wheel',e=>{
-  if(activeGame && document.fullscreenElement) e.preventDefault();
+  if(activeGame&&document.fullscreenElement)e.preventDefault();
 },{passive:false});
-
 </script>
 </body>
 </html>
