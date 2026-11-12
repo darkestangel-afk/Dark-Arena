@@ -176,10 +176,10 @@ body{padding:10px}.roster{padding:12px;gap:7px}.character{padding:9px}.avatar{he
     <span id="status" class="hint" style="margin:8px 0 0">READY</span>
   </div>
   <div class="controls">
-    <div><b>PLAYER 1</b><br><kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump<br><kbd>R</kbd> Basic · <kbd>E</kbd> Special<br><kbd>X</kbd> Shield · <kbd>C</kbd> Grab<br><kbd>S</kbd> Fast fall · Aim grab with WASD.</div>
-    <div><b>PLAYER 2</b><br><kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump<br><kbd>P</kbd> Basic · <kbd>O</kbd> Special<br><kbd>K</kbd> Shield · <kbd>L</kbd> Grab<br><kbd>↓</kbd> Fast fall · Aim grab with arrows.</div>
+    <div><b>PLAYER 1 / SOLO HUMAN</b><br><kbd>A</kbd><kbd>D</kbd> Move · <kbd>W</kbd> Jump · <kbd>S</kbd> Down/Fast fall<br><kbd>R</kbd> Basic / <kbd>E</kbd> Special (2-player)<br>Solo: <kbd>O</kbd> Basic · <kbd>P</kbd> Special<br><kbd>X</kbd> Shield / <kbd>C</kbd> Grab (2-player)<br>Solo: <kbd>K</kbd> Shield · <kbd>L</kbd> Grab</div>
+    <div><b>PLAYER 2</b><br><kbd>←</kbd><kbd>→</kbd> Move · <kbd>↑</kbd> Jump · <kbd>↓</kbd> Down/Fast fall<br><kbd>P</kbd> Basic · <kbd>O</kbd> Special<br><kbd>K</kbd> Shield · <kbd>L</kbd> Grab</div>
   </div>
-  <div class="hint">Shield: 5 seconds maximum use, 30 seconds to fully recharge. Press <kbd>Esc</kbd> to leave fullscreen.</div>
+  <div class="hint">Directional attacks: hold a direction with Basic or Special. Shield: 5 seconds maximum use, 30 seconds to fully recharge. Press <kbd>Esc</kbd> to leave fullscreen.</div>
 </section>
 </main>
 
@@ -197,6 +197,9 @@ const playerModes=['human','human'];
 const cpuLevels=[5,5];
 const roster=document.querySelector('#roster');
 
+function isSoloMode(){
+  return playerModes.filter(m=>m==='human').length===1&&playerModes.includes('cpu');
+}
 function renderSelect(){
   roster.innerHTML='';
   Object.entries(chars).forEach(([name,c])=>{
@@ -218,7 +221,6 @@ function renderSelect(){
   document.querySelector('#active1').style.outline=active===0?'2px solid #4aa8ff':'none';
   document.querySelector('#active2').style.outline=active===1?'2px solid #ff70c5':'none';
 }
-
 for(let i=0;i<2;i++){
   document.querySelector(`#p${i+1}mode`).addEventListener('change',e=>{playerModes[i]=e.target.value;renderSelect()});
   document.querySelector(`#p${i+1}level`).addEventListener('change',e=>{cpuLevels[i]=Number(e.target.value)});
@@ -251,6 +253,7 @@ const controls=[
 {left:'a',right:'d',jump:'w',down:'s',basic:'r',special:'e',shield:'x',grab:'c'},
 {left:'arrowleft',right:'arrowright',jump:'arrowup',down:'arrowdown',basic:'p',special:'o',shield:'k',grab:'l'}
 ];
+const soloControls={left:'a',right:'d',jump:'w',down:'s',basic:'o',special:'p',shield:'k',grab:'l'};
 const platforms=[
 {x:85,y:floorY,w:790,h:30},
 {x:290,y:325,w:150,h:14},
@@ -259,17 +262,20 @@ const platforms=[
 
 function makePlayer(name,x,face,i){
   const c=chars[name];
+  const solo=isSoloMode()&&playerModes[i]==='human';
   return{
     name,c,x,y:floorY-c.h*U,vx:0,vy:0,w:c.w*U,h:c.h*U,
     face,damage:0,ground:true,attack:0,attackType:null,hitTargets:{},
     basicCool:0,specialCool:0,grabCool:0,invul:0,stun:0,shield:false,
     buff:0,movementLock:0,fallSlow:0,jumpsRemaining:2,jumpHeld:false,
-    controls:controls[i],ko:0,shiny:0,shieldEnergy:SHIELD_MAX,
+    controls:solo?soloControls:controls[i],ko:0,shiny:0,shieldEnergy:SHIELD_MAX,
     isCPU:playerModes[i]==='cpu',cpuLevel:cpuLevels[i],
-    ai:{think:0,intent:{},lastDecision:0}
+    ai:{think:0,intent:{},lastDecision:0},aiInput:{},
+    dashTimer:0,dashDir:0,dashDistance:0,
+    counterTimer:0,counterFreeze:0,counterReady:false,
+    upSpecialTimer:0,upSpecialVictim:null,upSpecialDamageDone:false
   };
 }
-
 function initMatch(){
   stop();activeGrab=null;frameCount=0;
   players=[makePlayer(chosen[0],250,1,0),makePlayer(chosen[1],670,-1,1)];
@@ -284,22 +290,15 @@ function initMatch(){
 function stop(){activeGame=false;cancelAnimationFrame(raf)}
 function rect(x,y,w,h){return{x,y,w,h}}
 function overlaps(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
-
-/* CPU AI */
-function setAIKeys(p,intent){
-  const k=p.controls;
-  const names=['left','right','jump','down','basic','special','shield','grab'];
-  names.forEach(n=>{keys[k[n]]=!!intent[n]});
+function inputPressed(p,action){
+  if(p.isCPU)return !!p.aiInput[action];
+  return !!keys[p.controls[action]];
 }
 
+/* CPU AI */
 function runCPU(p,op,index){
   if(!p.isCPU)return;
-  const k=p.controls;
-  const level=p.cpuLevel;
-  const ai=p.ai;
-  const intent=ai.intent;
-
-  // CPU decisions are refreshed more frequently at higher levels.
+  const level=p.cpuLevel,ai=p.ai;
   const thinkInterval=Math.max(1,11-level);
   ai.think--;
 
@@ -317,90 +316,38 @@ function runCPU(p,op,index){
     const nearEdge=p.x<12||p.x+p.w>W-12;
     const belowOpponent=op.y+op.h<p.y+10;
     const aboveOpponent=op.y+op.h<p.y+p.h-25;
-
-    // Small, difficulty-dependent hesitation and imperfect decisions.
     const errorChance=(9-level)*.035;
     const makeMistake=Math.random()<errorChance;
+    let next={left:false,right:false,jump:false,down:false,basic:false,special:false,shield:false,grab:false};
 
-    let next={
-      left:false,right:false,jump:false,down:false,
-      basic:false,special:false,shield:false,grab:false
-    };
-
-    // Approach the opponent, but avoid blindly running off the stage.
     if(distance>p.w+op.w+28){
       if(direction>0)next.right=true;else next.left=true;
-    }else if(distance>p.w+op.w+8){
-      if(level>=4){
-        if(direction>0)next.right=true;else next.left=true;
-      }
+    }else if(distance>p.w+op.w+8&&level>=4){
+      if(direction>0)next.right=true;else next.left=true;
     }
-
-    // Face the opponent.
     if(dx!==0)p.face=direction;
-
-    // Jump to reach elevated opponents or escape a bad position.
     const jumpChance=.08+level*.055;
-    if(p.ground&&(
-      (aboveOpponent&&Math.random()<jumpChance)||
-      (nearEdge&&level>=3)||
-      (opponentThreat&&level>=6&&Math.random()<.55)
-    ))next.jump=true;
+    if(p.ground&&((aboveOpponent&&Math.random()<jumpChance)||(nearEdge&&level>=3)||(opponentThreat&&level>=6&&Math.random()<.55)))next.jump=true;
+    if(!p.ground&&p.vy>0&&level>=4&&(belowOpponent||p.y>H*.55)&&Math.random()<.35+level*.055)next.down=true;
 
-    // Fast fall to return to the stage or pursue an opponent below.
-    if(!p.ground&&p.vy>0&&level>=4){
-      if((belowOpponent||p.y>H*.55)&&Math.random()<.35+level*.055)next.down=true;
-    }
-
-    // Attack when close and reasonably aligned.
     const attackRange=p.c.name==='Fluff'?155:p.c.name==='Heavy'?125:115;
-    if(distance<attackRange&&aligned&&p.basicCool<=0){
-      if(Math.random()<.35+level*.075)next.basic=true;
-    }
-
-    // Specials are used more thoughtfully at higher levels.
-    if(p.specialCool<=0&&distance<(p.c.name==='Brawler'?115:175)){
-      const specialChance=.12+level*.085;
-      if(Math.random()<specialChance)next.special=true;
-    }
-
-    // Grabs are attempted at close range, more often at higher levels.
-    if(close&&aligned&&p.grabCool<=0&&level>=3){
-      if(Math.random()<.04+level*.035)next.grab=true;
-    }
-
-    // Shield when an incoming attack is likely to connect.
-    if(level>=4&&opponentThreat&&p.ground&&p.shieldEnergy>0){
-      if(Math.random()<.25+level*.075)next.shield=true;
-    }
-
-    // Higher levels try to avoid attacks instead of only shielding.
+    if(distance<attackRange&&aligned&&p.basicCool<=0&&Math.random()<.35+level*.075)next.basic=true;
+    if(p.specialCool<=0&&distance<(p.c.name==='Brawler'?115:175)&&Math.random()<.12+level*.085)next.special=true;
+    if(close&&aligned&&p.grabCool<=0&&level>=3&&Math.random()<.04+level*.035)next.grab=true;
+    if(level>=4&&opponentThreat&&p.ground&&p.shieldEnergy>0&&Math.random()<.25+level*.075)next.shield=true;
     if(level>=7&&opponentThreat&&p.ground&&Math.random()<.25+level*.055){
-      next.jump=true;
-      next.left=direction>0;
-      next.right=direction<0;
+      next.jump=true;next.left=direction>0;next.right=direction<0;
     }
-
-    // Better recovery: steer toward the stage when airborne near an edge.
     if(level>=5&&!p.ground&&(p.x<80||p.x+p.w>W-80)){
       if(p.x<80)next.right=true;
       if(p.x+p.w>W-80)next.left=true;
       if(p.vy>0&&level>=7)next.down=false;
     }
-
-    // Avoid unnecessary attacks when the opponent is invulnerable.
-    if(op.invul>0&&level>=5){
-      next.basic=false;
-      if(level>=7)next.grab=false;
-    }
-
-    // Occasional mistakes keep lower levels from feeling robotic.
+    if(op.invul>0&&level>=5){next.basic=false;if(level>=7)next.grab=false}
     if(makeMistake){
       if(Math.random()<.5){next.basic=false;next.special=false}
       else{next.left=false;next.right=false}
     }
-
-    // Level 9 makes more deliberate decisions and uses openings.
     if(level===9&&close&&aligned&&op.invul<=0){
       if(p.c.name==='Heavy'&&p.buff>0&&p.basicCool<=0)next.basic=true;
       if(p.c.name==='Brawler'&&p.specialCool<=0&&distance<100)next.special=true;
@@ -408,21 +355,20 @@ function runCPU(p,op,index){
 
     ai.intent=next;
     ai.lastDecision=frameCount;
+    // Attack and jump inputs are one-frame pulses, not held repeatedly.
+    p.aiInput={...next};
+    ai.intent={...next,jump:false,basic:false,special:false,grab:false};
+  }else{
+    p.aiInput={...ai.intent};
   }
 
-  // Keep the current intent active between decision updates.
-  setAIKeys(p,ai.intent);
-
-  // During a grab, actively choose a throw direction.
   if(activeGrab&&activeGrab.attacker===p){
     const g=activeGrab;
     const dx=(op.x+op.w/2)-(p.x+p.w/2);
     if(level>=5){
       g.dx=dx===0?p.face:Math.sign(dx);
-      g.dy=level>=8&&op.y<p.y?-0.7:0;
-    }else{
-      g.dx=p.face;g.dy=0;
-    }
+      g.dy=level>=8&&op.y<p.y?-.7:0;
+    }else{g.dx=p.face;g.dy=0}
   }
 }
 
@@ -440,26 +386,70 @@ function shinyEffect(p){
 }
 
 /* ATTACK ACTIVATION */
-function hit(p,type){
-  if(p.stun>0||p.movementLock>0){if(type!=='special')return}
+function hit(p,type,direction='neutral'){
+  if(p.stun>0||p.movementLock>0||p.counterFreeze>0)return;
+
   if(type==='basic'){
     if(p.basicCool>0)return;
+
+    if(p.c.name==='Brawler'&&direction==='side'){
+      const dir=inputPressed(p,'left')?-1:1;
+      p.face=dir;p.dashDir=dir;p.dashTimer=8;p.dashDistance=0;
+      p.attack=8;p.attackType='brawlerSideBasic';p.hitTargets={};
+      p.basicCool=30;p.vx=dir*6;
+      return;
+    }
+    if(p.c.name==='Brawler'&&direction==='down'){
+      p.attack=14;p.attackType='brawlerDownBasic';p.hitTargets={};
+      p.basicCool=30;return;
+    }
+
     p.attack=14;p.attackType='basic';p.hitTargets={};
     p.basicCool=p.c.name==='Heavy'?90:30;return;
   }
+
   if(type==='grab'){
     if(p.grabCool>0||activeGrab)return;
     p.attack=14;p.attackType='grab';p.hitTargets={};p.grabCool=45;return;
   }
+
   if(type==='special'){
     if(p.specialCool>0)return;
-    p.specialCool=p.c.name==='Heavy'?600:65;
+
     if(p.c.name==='Heavy'){
-      p.buff=180;p.basicCool=0;p.attack=0;p.attackType=null;
-      shinyEffect(p);document.querySelector('#status').textContent='HEAVY POWER-UP!';return;
+      if(direction!=='neutral')return;
+      p.specialCool=600;p.buff=180;p.basicCool=0;
+      p.attack=0;p.attackType=null;shinyEffect(p);
+      document.querySelector('#status').textContent='HEAVY POWER-UP!';
+      return;
     }
-    p.attack=22;p.attackType='special';p.hitTargets={};
-    if(p.c.name==='Brawler'){p.movementLock=60;p.vx=0}
+
+    if(p.c.name==='Brawler'){
+      if(direction==='side'){
+        const dir=inputPressed(p,'left')?-1:1;
+        p.face=dir;p.specialCool=30;p.attack=18;
+        p.attackType='brawlerSideSpecial';p.hitTargets={};
+        return;
+      }
+      if(direction==='down'){
+        p.specialCool=65;p.counterTimer=30;p.counterReady=true;
+        p.counterFreeze=0;p.invul=0;
+        p.attack=0;p.attackType='brawlerCounter';p.hitTargets={};
+        document.querySelector('#status').textContent='BRAWLER COUNTER!';
+        return;
+      }
+      if(direction==='up'){
+        p.specialCool=65;p.upSpecialTimer=24;
+        p.upSpecialVictim=null;p.upSpecialDamageDone=false;
+        p.attack=24;p.attackType='brawlerUpSpecial';p.hitTargets={};
+        p.vy=-5.5;p.ground=false;
+        return;
+      }
+      p.specialCool=65;p.attack=22;p.attackType='special';p.hitTargets={};
+      p.movementLock=60;p.vx=0;return;
+    }
+
+    p.specialCool=65;p.attack=22;p.attackType='special';p.hitTargets={};
     if(p.c.name==='Fluff')p.fallSlow=120;
   }
 }
@@ -474,7 +464,10 @@ function basicRect(p){
   return rect(centerX-bw/2,centerY-bh/2,bw,bh);
 }
 function grabRect(p){
-  const range=.5*p.w,thickness=.25*p.h;
+  let range=.5*p.w;
+  if(p.c.name==='Fluff')range-=2;
+  if(p.c.name==='Heavy')range+=4;
+  const thickness=.25*p.h;
   const centerY=p.y+p.h-(2/3)*p.h;
   const x=p.face>0?p.x+p.w:p.x-range;
   return rect(x,centerY-thickness/2,range,thickness);
@@ -482,6 +475,18 @@ function grabRect(p){
 function attackShape(p){
   if(p.attackType==='basic')return basicRect(p);
   if(p.attackType==='grab')return grabRect(p);
+  if(p.attackType==='brawlerSideBasic'){
+    return rect(p.dashDir>0?p.x+p.w:p.x-U,p.y+p.h/2-U/2,U,U);
+  }
+  if(p.attackType==='brawlerDownBasic'){
+    return{circle:true,x:p.x+p.w/2,y:p.y+p.h,r:U};
+  }
+  if(p.attackType==='brawlerSideSpecial'){
+    const width=9,height=1.5*U;
+    const x=p.face>0?p.x+p.w:p.x-width;
+    return rect(x,p.y+p.h/2-height/2,width,height);
+  }
+  if(p.attackType==='brawlerUpSpecial')return rect(p.x-3,p.y-3,p.w+6,p.h+6);
   if(p.attackType==='special'){
     if(p.c.name==='Brawler')return{circle:true,x:p.x+p.w/2,y:p.y+p.h/2,r:1.5*U};
     if(p.c.name==='Fluff')return{circle:true,x:p.x+.325*U,y:p.y+p.h-1.75*U,r:1*U};
@@ -491,6 +496,21 @@ function attackShape(p){
 
 /* DAMAGE AND KNOCKBACK */
 function damageHit(att,def,type){
+  // A successful hit against Brawler's counter is reflected.
+  if(def.c.name==='Brawler'&&def.counterTimer>0&&def.counterReady){
+    def.counterTimer=0;def.counterReady=false;def.counterFreeze=0;
+    def.attack=0;def.attackType=null;
+    att.damage+=15;
+    const scale=1+att.damage/100;
+    const away=Math.sign((att.x+att.w/2)-(def.x+def.w/2))||-def.face;
+    att.vx=away*6*scale;
+    att.vy=-2.5*scale;
+    att.stun=24;att.invul=18;
+    createParticles(att.x+att.w/2,att.y+att.h/2,'#b4f1ff',22,10);
+    document.querySelector('#status').textContent='COUNTER HIT! 15% RETURNED!';
+    return;
+  }
+
   if(def.invul>0||def.shield)return;
   const attacker=att.c.name;
   let damage=0;
@@ -504,13 +524,27 @@ function damageHit(att,def,type){
     if(attacker==='Brawler')damage=25;
     if(attacker==='Fluff')damage=20;
   }
+  if(type==='brawlerSideBasic')damage=11;
+  if(type==='brawlerDownBasic')damage=7;
+  if(type==='brawlerSideSpecial')damage=12;
+  if(type==='brawlerUpSpecial')damage=5;
   if(damage<=0)return;
   if(att.buff>0)damage*=1.4;
   def.damage+=damage;
   const knockbackScale=1+def.damage/100;
   const away=Math.sign((def.x+def.w/2)-(att.x+att.w/2))||att.face;
 
-  if(attacker==='Fluff'&&type==='basic'){
+  if(type==='brawlerSideBasic'){
+    def.vx=att.dashDir*5.5*knockbackScale;
+    def.vy=0; 
+  }else if(type==='brawlerDownBasic'){
+    def.vx=away*4*knockbackScale;def.vy=-2.5*knockbackScale;
+  }else if(type==='brawlerSideSpecial'){
+    def.vx=att.face*1.2*knockbackScale;
+    def.vy=-5.5*knockbackScale;
+  }else if(type==='brawlerUpSpecial'){
+    def.vx=0;def.vy=0;
+  }else if(attacker==='Fluff'&&type==='basic'){
     const force=3*knockbackScale;
     if(!def.ground){def.vx=0;def.vy=force}
     else{def.vx=away*.979796*force;def.vy=-.2*force}
@@ -537,22 +571,27 @@ function damageHit(att,def,type){
 
 /* GRAB SYSTEM */
 function startGrab(attacker,victim){
-  if(activeGrab||victim.invul>0||victim.shield)return;
+  // Grabs deliberately ignore shield, but not invulnerability.
+  if(activeGrab||victim.invul>0)return;
   activeGrab={attacker,victim,timer:60,dx:attacker.face,dy:0};
   attacker.attack=0;attacker.attackType=null;attacker.vx=0;attacker.vy=0;
-  victim.vx=0;victim.vy=0;victim.stun=0;victim.invul=0;
+  victim.vx=0;victim.vy=0;victim.stun=0;victim.invul=0;victim.shield=false;
   document.querySelector('#status').textContent=
     (attacker===players[0]?'PLAYER 1':'PLAYER 2')+' GRAB! CHOOSE A THROW DIRECTION!';
 }
 function updateGrab(){
   if(!activeGrab)return;
-  const g=activeGrab,a=g.attacker,v=g.victim,k=a.controls;
+  const g=activeGrab,a=g.attacker,v=g.victim;
   let dx=0,dy=0;
-  if(keys[k.left])dx--;
-  if(keys[k.right])dx++;
-  if(keys[k.jump])dy--;
-  if(keys[k.down])dy++;
-  if(dx!==0||dy!==0){const length=Math.hypot(dx,dy);g.dx=dx/length;g.dy=dy/length}
+  if(!a.isCPU){
+    if(inputPressed(a,'left'))dx--;
+    if(inputPressed(a,'right'))dx++;
+    if(inputPressed(a,'jump'))dy--;
+    if(inputPressed(a,'down'))dy++;
+    if(dx!==0||dy!==0){
+      const length=Math.hypot(dx,dy);g.dx=dx/length;g.dy=dy/length;
+    }
+  }
   a.vx=0;a.vy=0;v.vx=0;v.vy=0;
   g.timer--;
   if(g.timer<=0){
@@ -572,6 +611,21 @@ function updateGrab(){
 function checkAttack(p,op){
   if(p.attack<=0||p.hitTargets[op.name])return;
   if(p.attackType==='special'&&p.c.name==='Heavy')return;
+
+  // Brawler's upward special catches with the entire body and carries one target.
+  if(p.attackType==='brawlerUpSpecial'){
+    if(!p.upSpecialVictim&&overlaps(rect(p.x,p.y,p.w,p.h),rect(op.x,op.y,op.w,op.h))){
+      if(op.invul<=0&&!op.shield){
+        p.upSpecialVictim=op;
+        p.hitTargets[op.name]=true;
+        damageHit(p,op,'brawlerUpSpecial');
+        op.vx=0;op.vy=0;op.stun=0;op.invul=0;
+        p.upSpecialDamageDone=true;
+      }
+    }
+    return;
+  }
+
   if(p.attackType==='special'&&p.attack===21){
     const s=attackShape(p);
     if(s&&s.circle){
@@ -582,6 +636,22 @@ function checkAttack(p,op){
     }
     return;
   }
+
+  const isDirectional=['brawlerSideBasic','brawlerDownBasic','brawlerSideSpecial'].includes(p.attackType);
+  if(isDirectional){
+    const s=attackShape(p);
+    let touching=false;
+    if(s&&s.circle){
+      const dx=op.x+op.w/2-s.x,dy=op.y+op.h/2-s.y;
+      touching=Math.hypot(dx,dy)<s.r+Math.min(op.w,op.h)/2;
+    }else touching=!!s&&overlaps(s,rect(op.x,op.y,op.w,op.h));
+    if(touching){
+      p.hitTargets[op.name]=true;
+      damageHit(p,op,p.attackType);
+    }
+    return;
+  }
+
   if(p.attack===8){
     const b=attackShape(p);
     if(b&&overlaps(b,rect(op.x,op.y,op.w,op.h))){
@@ -595,7 +665,7 @@ function checkAttack(p,op){
 /* PLAYER UPDATE */
 function update(p,op){
   if(activeGrab&&(activeGrab.attacker===p||activeGrab.victim===p))return;
-  const k=p.controls,c=p.c;
+  const c=p.c;
   p.basicCool=Math.max(0,p.basicCool-1);
   p.specialCool=Math.max(0,p.specialCool-1);
   p.grabCool=Math.max(0,p.grabCool-1);
@@ -607,23 +677,64 @@ function update(p,op){
   p.fallSlow=Math.max(0,p.fallSlow-1);
   p.shiny=Math.max(0,p.shiny-1);
 
-  const shieldRequested=!!keys[k.shield]&&p.ground&&p.stun===0&&p.movementLock===0&&p.shieldEnergy>0;
+  // Counter: if nobody hits during its 0.5-second window, freeze Brawler for 1 second.
+  if(p.counterTimer>0){
+    p.counterTimer--;
+    if(p.counterTimer===0&&p.counterReady){
+      p.counterReady=false;p.counterFreeze=60;
+      p.attackType=null;
+      document.querySelector('#status').textContent='COUNTER MISSED! BRAWLER IS FROZEN!';
+    }
+  }
+  if(p.counterFreeze>0)p.counterFreeze--;
+
+  // Carry a caught opponent during Brawler's upward special.
+  if(p.upSpecialTimer>0){
+    p.upSpecialTimer--;
+    if(p.upSpecialVictim){
+      const v=p.upSpecialVictim;
+      v.x=p.x+p.w/2-v.w/2;
+      v.y=p.y-v.h-2;
+      v.vx=0;v.vy=0;v.ground=false;
+      v.stun=0;v.invul=0;
+    }
+    if(p.upSpecialTimer===0){
+      if(p.upSpecialVictim){
+        const v=p.upSpecialVictim;
+        v.x=p.x+p.w/2-v.w/2;
+        v.y=p.y-v.h-2;
+        v.vx=0;v.vy=-4*(1+v.damage/100);
+        v.ground=false;v.invul=16;v.stun=12;
+        createParticles(v.x+v.w/2,v.y+v.h/2,'#b4f1ff',20,9);
+      }
+      p.upSpecialVictim=null;
+      p.attack=0;p.attackType=null;
+    }
+  }
+
+  const shieldRequested=inputPressed(p,'shield')&&p.ground&&p.stun===0&&p.movementLock===0&&p.shieldEnergy>0&&p.counterFreeze===0;
   if(shieldRequested){p.shield=true;p.shieldEnergy=Math.max(0,p.shieldEnergy-1)}
   else{p.shield=false;p.shieldEnergy=Math.min(SHIELD_MAX,p.shieldEnergy+SHIELD_RECHARGE)}
   const shieldMultiplier=p.shield?0.45:1;
 
-  if(p.stun===0){
+  if(p.stun===0&&p.counterFreeze===0){
     const buffMultiplier=p.buff>0?1.4:1;
-    const movementLocked=p.movementLock>0;
+    const movementLocked=p.movementLock>0||p.upSpecialTimer>0;
     const speed=(c.speed/50)*4.4*buffMultiplier*shieldMultiplier;
-    if(!movementLocked){
-      if(keys[k.left]){p.vx-=.75;p.face=-1}
-      if(keys[k.right]){p.vx+=.75;p.face=1}
+
+    if(p.dashTimer>0){
+      p.vx=p.dashDir*6;
+      p.dashDistance+=Math.abs(p.vx);
+      p.dashTimer--;
+      if(p.dashTimer===0||p.dashDistance>=1.5*U)p.vx=0;
+    }else if(!movementLocked){
+      if(inputPressed(p,'left')){p.vx-=.75;p.face=-1}
+      if(inputPressed(p,'right')){p.vx+=.75;p.face=1}
       p.vx=Math.max(-speed,Math.min(speed,p.vx));
-      if(!keys[k.left]&&!keys[k.right])p.vx*=.78;
+      if(!inputPressed(p,'left')&&!inputPressed(p,'right'))p.vx*=.78;
     }else p.vx=0;
 
-    const jumpPressed=!!keys[k.jump];
+    const jumpPressed=inputPressed(p,'jump');
     if(jumpPressed&&!p.jumpHeld){
       if(p.jumpsRemaining>0&&!p.shield&&!movementLocked){
         const normalJumpHeight=(12*12)/(2*GRAVITY);
@@ -633,15 +744,35 @@ function update(p,op){
       }
     }
     p.jumpHeld=jumpPressed;
-    if(keys[k.basic]&&!movementLocked)hit(p,'basic');
-    if(keys[k.special])hit(p,'special');
-    if(keys[k.grab]&&!movementLocked)hit(p,'grab');
-  }else p.jumpHeld=!!keys[k.jump];
+
+    const down=inputPressed(p,'down');
+    const side=inputPressed(p,'left')||inputPressed(p,'right');
+    const special=inputPressed(p,'special');
+    const basic=inputPressed(p,'basic');
+
+    if(!movementLocked){
+      // Directional input takes priority over neutral attacks.
+      if(special){
+        if(down)hit(p,'special','down');
+        else if(jumpPressed)hit(p,'special','up');
+        else if(side)hit(p,'special','side');
+        else hit(p,'special','neutral');
+      }
+      if(basic){
+        if(down)hit(p,'basic','down');
+        else if(side)hit(p,'basic','side');
+        else hit(p,'basic','neutral');
+      }
+      if(inputPressed(p,'grab'))hit(p,'grab');
+    }else if(special){
+      // A counter can be activated while stationary; movement-locked states cannot attack.
+    }
+  }else p.jumpHeld=inputPressed(p,'jump');
 
   p.x+=p.vx;p.y+=p.vy;
   let maxFallSpeed=c.fallSpeed/10;
   if(p.fallSlow>0)maxFallSpeed=1;
-  if(!p.ground&&keys[k.down])maxFallSpeed*=2;
+  if(!p.ground&&inputPressed(p,'down'))maxFallSpeed*=2;
   p.vy=Math.min(maxFallSpeed,p.vy+GRAVITY);
   p.ground=false;
 
@@ -651,7 +782,6 @@ function update(p,op){
     }
   }
 
-  // Blast zones are 96 pixels beyond the screen edges.
   checkAttack(p,op);
   const outsideLeft=p.x+p.w<-96;
   const outsideRight=p.x>W+96;
@@ -666,6 +796,8 @@ function update(p,op){
     p.invul=100;p.jumpsRemaining=2;p.ground=false;p.attack=0;
     p.buff=0;p.movementLock=0;p.fallSlow=0;
     p.shieldEnergy=SHIELD_MAX;p.shield=false;
+    p.counterTimer=0;p.counterFreeze=0;p.counterReady=false;
+    p.upSpecialTimer=0;p.upSpecialVictim=null;p.dashTimer=0;
   }
 }
 
@@ -713,10 +845,13 @@ function draw(){
     if(p.attack>0){
       const s=attackShape(p);
       if(s){
-        ctx.fillStyle=p.attackType==='special'?'rgba(255,220,100,.32)':'rgba(255,255,255,.28)';
+        ctx.fillStyle=p.attackType==='special'||p.attackType.includes('Special')?'rgba(255,220,100,.32)':'rgba(255,255,255,.28)';
         if(s.circle){ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
         else ctx.fillRect(s.x,s.y,s.w,s.h);
       }
+    }
+    if(p.counterTimer>0){
+      ctx.strokeStyle='#b4f1ff';ctx.lineWidth=3;ctx.strokeRect(p.x-5,p.y-5,p.w+10,p.h+10);
     }
     if(p.buff>0){
       ctx.strokeStyle='#ffd166';ctx.lineWidth=3;ctx.shadowColor='#ffd166';ctx.shadowBlur=12;
@@ -757,8 +892,6 @@ function draw(){
 function loop(){
   if(!activeGame)return;
   frameCount++;
-
-  // Generate CPU inputs before updating the fighters.
   if(players[0].isCPU)runCPU(players[0],players[1],0);
   if(players[1].isCPU)runCPU(players[1],players[0],1);
 
